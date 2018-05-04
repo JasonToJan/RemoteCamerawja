@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/linearLayout1"
+    android:orientation="vertical"
+    android:layout_margin="3dp"
+    >
+
+    <GridView android:id="@+id/picturesAll_gv"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="10px"
+        android:horizontalSpacing="3px"
+        android:verticalSpacing="3px"
+        android:numColumns="3"/>
+
+</LinearLayout>

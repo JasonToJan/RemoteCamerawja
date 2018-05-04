@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/main_bg0"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/main_iv"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/camera80"
+            android:layout_marginTop="50dp"
+            android:layout_centerHorizontal="true"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="远程相机"
+            android:layout_below="@+id/main_iv"
+            android:layout_marginTop="20dp"
+            android:textSize="24sp"
+            android:layout_centerHorizontal="true"
+            />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        >
+
+        <Button
+            android:id="@+id/main_A_btn"
+            android:text="使用A端"
+            android:textSize="24sp"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_width="250dp"
+            android:layout_height="60dp" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp">
+
+        <Button
+            android:id="@+id/main_B_btn"
+            android:text="使用B端"
+            android:textSize="24sp"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:layout_width="250dp"
+            android:layout_height="60dp" />
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">RemoteCamera-wja</string>
+    <string name="button_settings">设置</string>
+    <string name="button_capture_photo">拍照</string>
+</resources>
