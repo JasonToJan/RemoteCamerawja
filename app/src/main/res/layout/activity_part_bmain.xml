@@ -17,7 +17,7 @@
             android:id="@+id/partb_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="控制状态："
+            android:text="B端-远程控制端"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:layout_marginRight="16dp"
@@ -29,10 +29,65 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="未控制"
+            android:visibility="gone"
             android:textColor="@color/red0"
             android:textSize="24sp"
             android:layout_marginRight="16dp"
             android:layout_toRightOf="@+id/partb_status"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginTop="30dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/partb_connect_btn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="连接服务器+认证"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:textSize="24sp"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginTop="30dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/partb_offConnect_btn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="断开连接"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:textSize="24sp"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_marginTop="30dp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/partb_send_btn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="发送消息"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:textSize="24sp"
             />
 
     </RelativeLayout>

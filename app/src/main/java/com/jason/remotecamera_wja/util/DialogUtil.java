@@ -50,7 +50,6 @@ public class DialogUtil {
     }
 
     public  void showLoading(Context context) {
-
         progressDialog = new Dialog(context,R.style.progress_dialog);
         progressDialog.setContentView(R.layout.dialog);
         progressDialog.setCancelable(true);
@@ -58,6 +57,16 @@ public class DialogUtil {
         TextView msg = (TextView) progressDialog.findViewById(R.id.id_tv_loadingmsg);
         msg.setText("连接中...");
         progressDialog.show();
-
     }
+
+    public void tokeAPhoto(Context context) {
+        progressDialog = new Dialog(context,R.style.progress_dialog);
+        progressDialog.setContentView(R.layout.dialog);
+        progressDialog.setCancelable(true);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        TextView msg = (TextView) progressDialog.findViewById(R.id.id_tv_loadingmsg);
+        msg.setText("正在控制A端拍照...");
+        progressDialog.show();
+    }
+
 }

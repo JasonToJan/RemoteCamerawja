@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
+import com.jason.remotecamera_wja.app.Constant;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class SocketB extends AppCompatActivity {
             try {
                 //连接服务器 并设置连接超时为1秒
                 socket = new Socket();
-                socket.connect(new InetSocketAddress("192.168.1.182", 30000), 1000); //端口号为30000
+                socket.connect(new InetSocketAddress(Constant.ServiceAddress, Constant.DEFAULT_PORT), 1000); //端口号为30000
                 //获取输入输出流
                 OutputStream ou = socket.getOutputStream();
                 BufferedReader bff = new BufferedReader(new InputStreamReader(
@@ -97,7 +98,7 @@ public class SocketB extends AppCompatActivity {
                 }
 
                 //向服务器发送信息
-                ou.write(txt1.getBytes("gbk"));
+                ou.write(txt1.getBytes("utf-8"));
                 ou.flush();
                 bundle.putString("msg", buffer.toString());
                 msg.setData(bundle);

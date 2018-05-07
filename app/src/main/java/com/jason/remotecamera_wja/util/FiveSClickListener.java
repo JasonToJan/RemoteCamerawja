@@ -6,11 +6,11 @@ import android.view.View.OnClickListener;
 import java.util.Calendar;
 
 /**
- * 避免在1秒内出发多次点击
+ * 避免在5秒内出发多次点击
  */
-public abstract class PerfectClickListener implements OnClickListener {
+public abstract class FiveSClickListener implements OnClickListener {
 
-    public static final int MIN_CLICK_DELAY_TIME = 1000;
+    public static final int MIN_CLICK_DELAY_TIME = 5000;
     private long lastClickTime = 0;
     private int id = -1;
 

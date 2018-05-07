@@ -3,7 +3,6 @@ package com.jason.remotecamera_wja.camera;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.Camera;
@@ -21,9 +20,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.jason.remotecamera_wja.InitApp;
+import com.jason.remotecamera_wja.app.Constant;
 import com.jason.remotecamera_wja.util.BitmapUtil;
 import com.jason.remotecamera_wja.util.DebugUtil;
+import com.jason.remotecamera_wja.util.DensityUtil;
 import com.jason.remotecamera_wja.util.ImageUtil;
+import com.jason.remotecamera_wja.view.RectImageView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,16 +39,6 @@ import java.util.List;
 
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
-    public static final String KEY_PREF_PIC_SIZE = "picture_size";
-    public static final String KEY_PREF_VIDEO_SIZE = "video_size";
-    public static final String KEY_PREF_FLASH_MODE = "flash_mode";
-    public static final String KEY_PREF_FOCUS_MODE = "focus_mode";
-    public static final String KEY_PREF_WHITE_BALANCE = "white_balance";
-    public static final String KEY_PREF_SCENE_MODE = "scene_mode";
-    public static final String KEY_PREF_GPS_DATA = "gps_data";
-    public static final String KEY_PREF_EXPOS_COMP = "exposure_compensation";
-    public static final String KEY_PREF_JPEG_QUALITY = "jpeg_quality";
-
     public static final String TAG = "CameraPreview";
     public static final int MEDIA_TYPE_IMAGE=1;
     public static final int TEMP_IMAGE=2;
@@ -56,6 +48,8 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Uri outputMediaFileUri;
     private String outputMediaFileType;
     private float oldDist = 1f;
+    private List<Camera.Size> previewSizes;
+    private List<Camera.Size> pictureSizes;
 
     public CameraPreview(Context context) {
         super(context);
@@ -76,11 +70,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                 , clamp(centerX + halfAreaSize, -1000, 1000)
                 , clamp(centerY + halfAreaSize, -1000, 1000));
         return new Rect(Math.round(rectF.left), Math.round(rectF.top), Math.round(rectF.right), Math.round(rectF.bottom));
-    }
-
-    public Point doGetPrictureSize(){
-        Camera.Size s = mCamera.getParameters().getPictureSize();
-        return new Point(s.width, s.height);
     }
 
     private static int clamp(int x, int min, int max) {
@@ -158,6 +147,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     return;
                 }
                 try {
+                    if(null != data) {
+                        Bitmap b = null;
+                        b = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        mCamera.stopPreview();
+                    }
                     FileOutputStream fos = new FileOutputStream(pictureFile);
                     fos.write(data);
                     fos.close();
@@ -165,7 +159,41 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     Bitmap bitmap=BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
                             BitmapUtil.readPictureDegree(pictureFile.getPath()));
                     view.setImageBitmap(bitmap);//显示到小预览图中
-                    mCamera.startPreview();
+                    camera.startPreview();
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "File not found: " + e.getMessage());
+                } catch (IOException e) {
+                    Log.d(TAG, "Error accessing file: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    //B端进行拍照
+    public void takePicture2(final ImageView view,final TakePhotoBackListener listener){
+        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+                File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                if (pictureFile == null) {
+                    Log.d(TAG, "Error creating media file, check storage permissions");
+                    return;
+                }
+                try {
+                    if(null != data) {
+                        Bitmap b = null;
+                        b = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        mCamera.stopPreview();
+                    }
+                    FileOutputStream fos = new FileOutputStream(pictureFile);
+                    fos.write(data);
+                    fos.close();
+                    DebugUtil.debug("拍摄的照片旋转角度为："+BitmapUtil.readPictureDegree(pictureFile.getPath()));
+                    Bitmap bitmap=BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
+                            BitmapUtil.readPictureDegree(pictureFile.getPath()));
+                    view.setImageBitmap(bitmap);//显示到小预览图中
+                    listener.uploadPictureToB(data);
+                    camera.startPreview();
                 } catch (FileNotFoundException e) {
                     Log.d(TAG, "File not found: " + e.getMessage());
                 } catch (IOException e) {
@@ -176,10 +204,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     //进行拍照,图片保存路径为系统的picture下，名称为IMG_当前时间.jpg
-    int DST_RECT_WIDTH, DST_RECT_HEIGHT;
-    public void takePicture(final ImageView view,final int x,final int y,int w,int h){
-        DST_RECT_WIDTH=w;
-        DST_RECT_HEIGHT=h;
+    public void takePicture(final ImageView view,final int w,final int h,final int x,final int y){
+        final int DST_RECT_WIDTH= RectImageView.RECTRADIU;
+        final int DST_RECT_HEIGHT=RectImageView.RECTRADIU;
         mCamera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
@@ -190,22 +217,22 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     mCamera.stopPreview();
                 }
                 if(null != b) {
-                    Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 90.0f);
+                    Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 0.0f);
+                    Bitmap bitmap=BitmapUtil.resizeBitmap(rotaBitmap,w,h);//缩放成屏幕大小
 
-                    Log.i(TAG, "rotaBitmap.getWidth() = " + rotaBitmap.getWidth()
-                            + " \nrotaBitmap.getHeight() = " + rotaBitmap.getHeight()
-                            +" \nx="+x+" y="+y+"\ndst rect width="+DST_RECT_WIDTH
-                            +" dst rect height="+DST_RECT_HEIGHT
-                    );
-                    //保证不超过边界
-                    if(x+DST_RECT_WIDTH>rotaBitmap.getWidth()){
-                        DST_RECT_WIDTH=rotaBitmap.getWidth()-x;
-                    }
-                    if(y+DST_RECT_HEIGHT>rotaBitmap.getHeight()){
-                        DST_RECT_HEIGHT=rotaBitmap.getHeight()-y;
-                    }
-
-                    Bitmap rectBitmap = Bitmap.createBitmap(rotaBitmap, x, y, DST_RECT_WIDTH, DST_RECT_HEIGHT);
+                    int new_y= y-(DensityUtil.getScreenHeight(InitApp.AppContext)- Constant.DEFAULT_HEIGHT-h-DensityUtil.getStatusBarHeight(InitApp.AppContext))/2;
+                    Log.i(TAG, "w="+w+" h="+h+"Bitmap.getWidth() = " + bitmap.getWidth()
+                            + " \nBitmap.getHeight() = " + bitmap.getHeight()+" new_y="+new_y+
+                            " 屏幕高度为："+DensityUtil.getScreenHeight(InitApp.AppContext));
+                    //开始裁剪图片
+                    int crop_width=DST_RECT_WIDTH;
+                    int crop_height=DST_RECT_HEIGHT;
+                    if((x+DST_RECT_WIDTH)>bitmap.getWidth()) crop_width=bitmap.getWidth()-x;
+                    if((new_y+DST_RECT_HEIGHT)>bitmap.getHeight()) crop_height=bitmap.getHeight()-y;
+                    Log.i(TAG, "x="+x+" new_y="+new_y+"crop_width = " + crop_width
+                            + " \ncrop_height = " + crop_height+
+                            " 屏幕高度为："+DensityUtil.getScreenHeight(InitApp.AppContext));
+                    Bitmap rectBitmap = Bitmap.createBitmap(bitmap, x,new_y, crop_width, crop_height);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     rectBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] datas = baos.toByteArray();
@@ -222,6 +249,75 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                         view.setImageBitmap(BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
                                 BitmapUtil.readPictureDegree(pictureFile.getPath())));
 
+                        camera.startPreview();
+                    } catch (FileNotFoundException e) {
+                        Log.d(TAG, "File not found: " + e.getMessage());
+                    } catch (IOException e) {
+                        Log.d(TAG, "Error accessing file: " + e.getMessage());
+                    }
+                    if(rotaBitmap.isRecycled()){
+                        rotaBitmap.recycle();
+                        rotaBitmap = null;
+                    }
+                    if(rectBitmap.isRecycled()){
+                        rectBitmap.recycle();
+                        rectBitmap = null;
+                    }
+                }
+                if(!b.isRecycled()){
+                    b.recycle();
+                    b = null;
+                }
+            }
+        });
+    }
+
+    //B端进行区域拍照
+    public void takePicture2(final ImageView view,final int w,final int h,final int x,final int y,final TakePhotoBackListener listener){
+        final int DST_RECT_WIDTH= RectImageView.RECTRADIU;
+        final int DST_RECT_HEIGHT=RectImageView.RECTRADIU;
+        mCamera.takePicture(null, null, new Camera.PictureCallback() {
+            @Override
+            public void onPictureTaken(byte[] data, Camera camera) {
+                Log.i(TAG, "myJpegCallback:onPictureTaken...");
+                Bitmap b = null;
+                if(null != data){
+                    b = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    mCamera.stopPreview();
+                }
+                if(null != b) {
+                    Bitmap rotaBitmap = ImageUtil.getRotateBitmap(b, 0.0f);
+                    Bitmap bitmap=BitmapUtil.resizeBitmap(rotaBitmap,w,h);//缩放成屏幕大小
+
+                    int new_y= y-(DensityUtil.getScreenHeight(InitApp.AppContext)- Constant.DEFAULT_HEIGHT-h-DensityUtil.getStatusBarHeight(InitApp.AppContext))/2;
+                    Log.i(TAG, "w="+w+" h="+h+"Bitmap.getWidth() = " + bitmap.getWidth()
+                            + " \nBitmap.getHeight() = " + bitmap.getHeight()+" new_y="+new_y+
+                            " 屏幕高度为："+DensityUtil.getScreenHeight(InitApp.AppContext));
+                    //开始裁剪图片
+                    int crop_width=DST_RECT_WIDTH;
+                    int crop_height=DST_RECT_HEIGHT;
+                    if((x+DST_RECT_WIDTH)>bitmap.getWidth()) crop_width=bitmap.getWidth()-x;
+                    if((new_y+DST_RECT_HEIGHT)>bitmap.getHeight()) crop_height=bitmap.getHeight()-y;
+                    Log.i(TAG, "x="+x+" new_y="+new_y+"crop_width = " + crop_width
+                            + " \ncrop_height = " + crop_height+
+                            " 屏幕高度为："+DensityUtil.getScreenHeight(InitApp.AppContext));
+                    Bitmap rectBitmap = Bitmap.createBitmap(bitmap, x,new_y, crop_width, crop_height);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    rectBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] datas = baos.toByteArray();
+                    File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                    if (pictureFile == null) {
+                        Log.d(TAG, "Error creating media file, check storage permissions");
+                        return;
+                    }
+                    try {
+                        FileOutputStream fos = new FileOutputStream(pictureFile);
+                        fos.write(datas);//存入裁剪后的图片
+                        fos.close();
+                        DebugUtil.debug("拍摄的照片旋转角度为："+BitmapUtil.readPictureDegree(pictureFile.getPath()));
+                        view.setImageBitmap(BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
+                                BitmapUtil.readPictureDegree(pictureFile.getPath())));
+                        listener.uploadPictureToB(datas);
                         camera.startPreview();
                     } catch (FileNotFoundException e) {
                         Log.d(TAG, "File not found: " + e.getMessage());
@@ -369,6 +465,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         if (mCamera == null) {
             try {
                 mCamera = Camera.open();
+                int rotation=getDisplayOrientation();
+                mCamera.setDisplayOrientation(rotation);
+                Camera.Parameters parameters = mCamera.getParameters();
+                parameters.setRotation(rotation);
+                mCamera.setParameters(parameters);
             } catch (Exception e) {
                 Log.d(TAG, "camera is not available");
             }
@@ -380,6 +481,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         getCameraInstance();
         try {
             mCamera.setPreviewDisplay(holder);
+            int rotation=getDisplayOrientation();
+            mCamera.setDisplayOrientation(rotation);
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setRotation(rotation);
+            mCamera.setParameters(parameters);
             mCamera.startPreview();
         } catch (IOException e) {
             Log.d(TAG, "Error setting camera preview: " + e.getMessage());
@@ -395,11 +501,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        int rotation=getDisplayOrientation();
+       /* int rotation=getDisplayOrientation();
         mCamera.setDisplayOrientation(rotation);
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setRotation(rotation);
-        mCamera.setParameters(parameters);
-        adjustDisplayRatio(rotation);
+        mCamera.setParameters(parameters);*/
+        //adjustDisplayRatio(rotation);
     }
+
 }

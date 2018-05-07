@@ -10,7 +10,10 @@ import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
+import com.jason.remotecamera_wja.InitApp;
+import com.jason.remotecamera_wja.app.Constant;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DensityUtil;
 import com.jason.remotecamera_wja.util.DisplayUtil;
@@ -28,6 +31,10 @@ public class RectImageView extends AppCompatImageView{
     private int mSecondPointX , mSecondPointY ;
     private boolean isFirstDown = true;
     private int mOldX = 0, mOldY = 0;
+    private int max_width=DensityUtil.getScreenWidth(InitApp.AppContext);
+    private int max_height=DensityUtil.getScreenHeight(InitApp.AppContext)-Constant.DEFAULT_HEIGHT-DensityUtil.getStatusBarHeight(InitApp.AppContext);
+    private int min_width=0;
+    private int min_height=0;
 
 
     public RectImageView(Context context, AttributeSet attrs) {
@@ -42,6 +49,15 @@ public class RectImageView extends AppCompatImageView{
         mSecondPointX=mFristPointX+RECTRADIU;
         mFristPointY=DensityUtil.getScreenHeight(mContext)/2-RECTRADIU/2;
         mSecondPointY=mFristPointY+RECTRADIU;
+    }
+
+    public void setMax_width(int max_width){
+        this.max_width= max_width;
+    }
+
+    public void setMax_height(int max_height){
+        this.min_height=(DensityUtil.getScreenHeight(InitApp.AppContext)-Constant.DEFAULT_HEIGHT-max_height-DensityUtil.getStatusBarHeight(InitApp.AppContext))/2;
+        this.max_height=this.min_height+max_height;
     }
 
     private void initPaint(){
@@ -102,11 +118,12 @@ public class RectImageView extends AppCompatImageView{
                     mOldX = x;
                     mOldY = y;
                     //超出了当前屏幕范围
-                    if(getmFristPointX()+mXDis<0||getmFristPointY()+mYDis<0
-                            ||getmSecondPointX()+mXDis>DensityUtil.getScreenWidth(mContext)
-                            ||getmSecondPointY()+mYDis>DensityUtil.getScreenHeight(mContext)
+                    DebugUtil.debug("当前矩形左上角坐标：..."+" min_height="+min_height+" max_height="+max_height);
+                    if(getmFristPointX()+mXDis<min_width||getmFristPointY()+mYDis<min_height
+                            ||getmSecondPointX()+mXDis>max_width
+                            ||getmSecondPointY()+mYDis>max_height
                             ){
-                        DebugUtil.debug("当前矩形左上角坐标：...");
+                        DebugUtil.debug("当前矩形左上角坐标：..."+" min_height="+min_height+" max_height="+max_height);
                         return true;
                     }
                     ReSetVaue(mXDis, mYDis);
@@ -116,6 +133,35 @@ public class RectImageView extends AppCompatImageView{
             isFirstDown = true;
         }
         return true;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        // 获取宽-测量规则的模式和大小
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+
+        // 获取高-测量规则的模式和大小
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        // 设置wrap_content的默认宽 / 高值
+        // 默认宽/高的设定并无固定依据,根据需要灵活设置
+        // 类似TextView,ImageView等针对wrap_content均在onMeasure()对设置默认宽 / 高值有特殊处理,具体读者可以自行查看
+        int mWidth = 400;
+        int mHeight = 400;
+
+        // 当布局参数设置为wrap_content时，设置默认值
+        if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT && getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(mWidth, mHeight);
+            // 宽 / 高任意一个布局参数为= wrap_content时，都设置默认值
+        } else if (getLayoutParams().width == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(mWidth, heightSize);
+        } else if (getLayoutParams().height == ViewGroup.LayoutParams.WRAP_CONTENT) {
+            setMeasuredDimension(widthSize, mHeight);
+        }
     }
 
     public void ReSetVaue(int xDis, int yDis) {

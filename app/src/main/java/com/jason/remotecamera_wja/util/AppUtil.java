@@ -1,11 +1,16 @@
 package com.jason.remotecamera_wja.util;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.jason.remotecamera_wja.R;
 
 import java.util.List;
 
@@ -132,5 +137,15 @@ public class AppUtil {
         ActivityManager activityManager=(ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         String runningActivity=activityManager.getRunningTasks(1).get(0).topActivity.getClassName();
         return runningActivity;
+    }
+
+    /**
+     * 全屏显示
+     * @param activity
+     */
+    public static void fullScreen(Activity activity){
+        activity.requestWindowFeature(Window.FEATURE_NO_TITLE);// 隐藏标题
+        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);// 设置全屏
     }
 }

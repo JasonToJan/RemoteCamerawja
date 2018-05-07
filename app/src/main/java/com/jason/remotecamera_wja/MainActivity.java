@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button Abtn;
     private Button Bbtn;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,8 +26,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Abtn=findViewById(R.id.main_A_btn);
         Bbtn=findViewById(R.id.main_B_btn);
 
+
         Abtn.setOnClickListener(this);
         Bbtn.setOnClickListener(this);
+
     }
 
     @Override
@@ -40,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 PartBMain.launch("partB");
                 //SocketB.launch("socketB");
                 break;
-
 
             default:
                 break;

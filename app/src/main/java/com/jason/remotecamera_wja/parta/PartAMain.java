@@ -26,7 +26,11 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
 
     private Button parta_photo_btn;
     private Button parta_picture_btn;
+    private Button parta_connect_btn;
+    private Button parta_send_btn;
+    private Button parta_offConnect_btn;
     private AlertDialog mPermissionDialog;
+
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, PartAMain.class)
@@ -40,14 +44,21 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initView();
+
     }
 
     public void initView(){
         parta_photo_btn=findViewById(R.id.parta_photo_btn);
         parta_picture_btn=findViewById(R.id.parta_picture_btn);
+        parta_connect_btn=findViewById(R.id.parta_connect_btn);
+        parta_offConnect_btn=findViewById(R.id.parta_offConnect_btn);
+        parta_send_btn=findViewById(R.id.parta_send_btn);
 
         parta_photo_btn.setOnClickListener(this);
         parta_picture_btn.setOnClickListener(this);
+        parta_connect_btn.setOnClickListener(this);
+        parta_offConnect_btn.setOnClickListener(this);
+        parta_send_btn.setOnClickListener(this);
     }
 
     @Override
@@ -59,6 +70,11 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
             case R.id.parta_picture_btn:
                 checkPermission(2);
                 break;
+            case R.id.parta_connect_btn:
+                break;
+            case R.id.parta_offConnect_btn:
+                break;
+            case R.id.parta_send_btn:
             default:
                 break;
         }
@@ -160,5 +176,10 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
                     .create();
         }
         mPermissionDialog.show();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
     }
 }

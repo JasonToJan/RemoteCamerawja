@@ -298,5 +298,28 @@ public final class BitmapUtil {
         return baos.toByteArray();
     }
 
+    /**
+     * 调整Bitmap大小
+     * @param bitmap
+     * @param width
+     * @param height
+     * @return
+     */
+    public static Bitmap resizeBitmap(Bitmap bitmap,int width,int height){
+        // 获得相片的原始大小
+        int oriWidth = bitmap.getWidth();
+        int oriHeight = bitmap.getHeight();
+        // 获得相片的缩放比例
+        float scaleWidth = (float)width/oriWidth;
+        float scaleHeight = (float)height/oriHeight;
+        Matrix matrix = new Matrix();
+        matrix.postScale(scaleWidth,scaleHeight);
+        Bitmap mBitmap = Bitmap.createBitmap(bitmap,0,0,
+                oriWidth,oriHeight,matrix,true);
+        // 记得将原来的bitmap对象回收
+        bitmap.recycle();
+        return mBitmap;
+    }
+
 }
 
