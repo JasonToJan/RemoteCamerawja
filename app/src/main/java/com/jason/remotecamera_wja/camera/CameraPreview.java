@@ -25,6 +25,7 @@ import com.jason.remotecamera_wja.util.BitmapUtil;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DensityUtil;
 import com.jason.remotecamera_wja.util.ImageUtil;
+import com.jason.remotecamera_wja.util.UriUtil;
 import com.jason.remotecamera_wja.view.RectImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -192,7 +193,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     Bitmap bitmap=BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
                             BitmapUtil.readPictureDegree(pictureFile.getPath()));
                     view.setImageBitmap(bitmap);//显示到小预览图中
-                    listener.uploadPictureToB(data);
+                    listener.uploadPictureToB(UriUtil.getRealPathFromURI(InitApp.AppContext,outputMediaFileUri));
                     camera.startPreview();
                 } catch (FileNotFoundException e) {
                     Log.d(TAG, "File not found: " + e.getMessage());
@@ -317,7 +318,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                         DebugUtil.debug("拍摄的照片旋转角度为："+BitmapUtil.readPictureDegree(pictureFile.getPath()));
                         view.setImageBitmap(BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
                                 BitmapUtil.readPictureDegree(pictureFile.getPath())));
-                        listener.uploadPictureToB(datas);
+                        listener.uploadPictureToB(UriUtil.getRealPathFromURI(InitApp.AppContext,outputMediaFileUri));
                         camera.startPreview();
                     } catch (FileNotFoundException e) {
                         Log.d(TAG, "File not found: " + e.getMessage());
@@ -501,12 +502,12 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-       /* int rotation=getDisplayOrientation();
+        int rotation=getDisplayOrientation();
         mCamera.setDisplayOrientation(rotation);
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setRotation(rotation);
-        mCamera.setParameters(parameters);*/
-        //adjustDisplayRatio(rotation);
+        mCamera.setParameters(parameters);
+        adjustDisplayRatio(rotation);
     }
 
 }

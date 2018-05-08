@@ -11,17 +11,15 @@ import android.widget.Button;
 
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
-import com.jason.remotecamera_wja.util.DialogUtil;
+import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.PerfectClickListener;
 import com.jason.remotecamera_wja.util.ToastUtil;
 
 public class PartBMain extends AppCompatActivity{
 
     private Button partb_controll_btn;
-    private Button partb_connect_btn;
     private Button partb_picture_btn;
-    private Button partb_send_btn;
-    private Button partb_offConnect_btn;
+
 
 
     public static Handler mHandler = new Handler() {
@@ -52,9 +50,6 @@ public class PartBMain extends AppCompatActivity{
     public void initView(){
         partb_controll_btn=findViewById(R.id.partb_controll_btn);
         partb_picture_btn=findViewById(R.id.partb_picture_btn);
-        partb_connect_btn=findViewById(R.id.partb_connect_btn);
-        partb_offConnect_btn=findViewById(R.id.partb_offConnect_btn);
-        partb_send_btn=findViewById(R.id.partb_send_btn);
 
     }
 
@@ -62,37 +57,24 @@ public class PartBMain extends AppCompatActivity{
         partb_controll_btn.setOnClickListener(new PerfectClickListener() {
             @Override
             protected void onNoDoubleClick(View v) {
-                DialogUtil.getInstance().showLoading(PartBMain.this);
-                new Handler().postDelayed(new Runnable(){
+                //DialogUtil.getInstance().showLoading(PartBMain.this);
+                /*new Handler().postDelayed(new Runnable(){
                     public void run() {
                         DialogUtil.getInstance().closeDialog();
-                        ControllActivity.launch("请求控制中...");
+
                     }
-                }, 1000);
-
+                }, 1000);*/
+                ControllActivity.launch("请求控制中...");
             }
         });
 
-        partb_connect_btn.setOnClickListener(new View.OnClickListener() {
+        partb_picture_btn.setOnClickListener(new PerfectClickListener() {
             @Override
-            public void onClick(View v) {
-
+            protected void onNoDoubleClick(View v) {
+                PicturesAll.launch("pictures");
             }
         });
 
-        partb_offConnect_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
-        partb_send_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
     }
 
     @Override

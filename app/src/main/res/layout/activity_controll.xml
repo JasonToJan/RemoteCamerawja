@@ -8,6 +8,12 @@
     android:background="@color/main_bg0"
     tools:context=".parta.PartAMain">
 
+    <FrameLayout
+        android:id="@+id/camera_setting"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <RelativeLayout
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
@@ -43,22 +49,22 @@
         android:layout_height="wrap_content">
 
         <Button
-            android:id="@+id/controll_take_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="拍照"
-            android:background="@drawable/btn_bg_selector"
-            android:layout_alignParentLeft="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="16dp"
-            android:textSize="16sp"
-            />
+        android:id="@+id/controll_take_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="拍照"
+        android:background="@drawable/btn_bg_selector"
+        android:layout_alignParentLeft="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="16dp"
+        android:textSize="16sp"
+        />
 
         <Button
-            android:id="@+id/controll_params_btn"
+            android:id="@+id/controll_area_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="参数设置"
+            android:text="区域拍照"
             android:background="@drawable/btn_bg_selector"
             android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
@@ -67,10 +73,10 @@
             />
 
         <Button
-            android:id="@+id/controll_pictures_btn"
+            android:id="@+id/controll_setting_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="相册"
+            android:text="参数设置"
             android:background="@drawable/btn_bg_selector"
             android:layout_alignParentRight="true"
             android:layout_centerHorizontal="true"
@@ -91,16 +97,20 @@
             android:text="预览图片:"
             android:layout_margin="16dp"
             android:textColor="@color/gray0"
-            android:textSize="12sp"
+            android:textSize="20sp"
             android:layout_marginRight="16dp"
             />
 
         <ImageView
             android:id="@+id/controll_iv"
-            android:layout_margin="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_width="800dp"
+            android:layout_height="800dp"
+            android:scaleType="centerCrop"
             android:src="@mipmap/camera80"
+            android:layout_below="@+id/controll_preview_tv"
             />
 
     </RelativeLayout>

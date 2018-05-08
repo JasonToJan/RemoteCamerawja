@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jason.remotecamera_wja.R;
+import com.jason.remotecamera_wja.util.AppUtil;
 import com.jason.remotecamera_wja.util.BitmapUtil;
 import com.jason.remotecamera_wja.util.DebugUtil;
 
@@ -34,6 +35,7 @@ public class PicturesDetail extends AppCompatActivity implements ViewPager.OnPag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppUtil.fullScreen(this);
         setContentView(R.layout.activity_pictures_detail);
 
         initView();
@@ -90,7 +92,7 @@ public class PicturesDetail extends AppCompatActivity implements ViewPager.OnPag
             imageurl=imageList.get(position);
             if (!TextUtils.isEmpty(imageurl)) {
                 try{
-                    Bitmap bitmap=BitmapUtil.compressImageFromFile(imageurl,480,800);
+                    Bitmap bitmap=BitmapUtil.compressImageFromFile(imageurl,600,800);
                     Bitmap bitmap2=BitmapUtil.rotateBitmapByDegree(bitmap,
                             BitmapUtil.readPictureDegree(imageurl));
                     zoomImageView.setImageBitmap(bitmap2);

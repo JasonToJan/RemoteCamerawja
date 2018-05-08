@@ -1,19 +1,13 @@
-package com.jason.remotecamera_wja.camera;
+package com.jason.remotecamera_wja.partb;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
-import android.view.Display;
-import android.view.Surface;
-import android.view.WindowManager;
 
-import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
 import com.jason.remotecamera_wja.util.DebugUtil;
 
@@ -21,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PartBSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_PREF_PREV_SIZE = "preview_size";
     public static final String KEY_PREF_PIC_SIZE = "picture_size";
@@ -33,16 +26,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public static final String KEY_PREF_SCENE_MODE = "scene_mode";
     public static final String KEY_PREF_EXPOS_COMP = "exposure_compensation";
     public static final String KEY_PREF_JPEG_QUALITY = "jpeg_quality";
-    static Camera mCamera;
+    /*static Camera mCamera;
     static Camera.Parameters mParameters;
-    static CameraPreview mCameraPreview;
-    static UpdatepreviewListener listener;
+    static CameraPreview mCameraPreview;*/
+    static UpdateListener listener;
 
-    interface UpdatepreviewListener{
-        void updatepreview();
+    interface UpdateListener{
+        void updateSetting();
     }
 
-    public void setUpdatepreviewListener(UpdatepreviewListener listener){
+    public void setUpdateListener(UpdateListener listener){
         this.listener=listener;
     }
 
@@ -61,11 +54,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         initSummary(getPreferenceScreen());
     }
 
-    public static void passCamera(CameraPreview cameraPreview,Camera camera,UpdatepreviewListener mylistener) {
-        mCamera = camera;
+    public static void passCamera(UpdateListener mylistener) {
+       /* mCamera = camera;
         mParameters = camera.getParameters();
 
-        mCameraPreview = cameraPreview;
+        mCameraPreview = cameraPreview;*/
         listener=mylistener;
     }
 
@@ -82,25 +75,19 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     }
 
     public static String getDefaultPreviewSize() {
-        Size previewSize = mParameters.getPreviewSize();
-        return previewSize.width + "x" + previewSize.height;
+        return "x";
     }
 
     private static String getDefaultPictureSize() {
-        Size pictureSize = mParameters.getPictureSize();
-        return pictureSize.width + "x" + pictureSize.height;
+        return "x";
     }
 
     private static String getDefaultVideoSize() {
-        Size VideoSize = mParameters.getPreferredPreviewSizeForVideo();
-        return VideoSize.width + "x" + VideoSize.height;
+        return "x";
     }
 
     private static String getDefaultFocusMode() {
-        List<String> supportedFocusModes = mParameters.getSupportedFocusModes();
-        if (supportedFocusModes.contains("continuous-picture")) {
-            return "continuous-picture";
-        }
+        
         return "continuous-video";
     }
 
@@ -113,73 +100,35 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         setSceneMode(sharedPref.getString(KEY_PREF_SCENE_MODE, ""));
         setExposComp(sharedPref.getString(KEY_PREF_EXPOS_COMP, ""));
         setJpegQuality(sharedPref.getString(KEY_PREF_JPEG_QUALITY, ""));
-
-        mCamera.stopPreview();
-        int rotation=getDisplayOrientation();
-        mCamera.setDisplayOrientation(rotation);
-        Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setRotation(rotation);
-        mCamera.setParameters(mParameters);
-        mCamera.startPreview();
+        
     }
-
-    //获取显示的旋转角度
-    public static int getDisplayOrientation() {
-
-        Camera.CameraInfo camInfo =
-                new Camera.CameraInfo();
-        Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, camInfo);
-
-
-        Display display = ((WindowManager) InitApp.AppContext.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int rotation = display.getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }
-
-        int result = (camInfo.orientation - degrees + 360) % 360;
-        return result;
-    }
-
     private void loadSupportedPreviewSize() {
-        cameraSizeListToListPreference(mParameters.getSupportedPreviewSizes(), KEY_PREF_PREV_SIZE);
+        cameraSizeListToListPreference(new ArrayList(), KEY_PREF_PREV_SIZE);
     }
 
     private void loadSupportedPictureSize() {
-        cameraSizeListToListPreference(mParameters.getSupportedPictureSizes(), KEY_PREF_PIC_SIZE);
+        cameraSizeListToListPreference(new ArrayList(), KEY_PREF_PIC_SIZE);
     }
 
     private void loadSupportedFlashMode() {
-        stringListToListPreference(mParameters.getSupportedFlashModes(), KEY_PREF_FLASH_MODE);
+        stringListToListPreference(new ArrayList(), KEY_PREF_FLASH_MODE);
     }
 
     private void loadSupportedFocusMode() {
-        stringListToListPreference(mParameters.getSupportedFocusModes(), KEY_PREF_FOCUS_MODE);
+        stringListToListPreference(new ArrayList(), KEY_PREF_FOCUS_MODE);
     }
 
     private void loadSupportedWhiteBalance() {
-        stringListToListPreference(mParameters.getSupportedWhiteBalance(), KEY_PREF_WHITE_BALANCE);
+        stringListToListPreference(new ArrayList(), KEY_PREF_WHITE_BALANCE);
     }
 
     private void loadSupportedSceneMode() {
-        stringListToListPreference(mParameters.getSupportedSceneModes(), KEY_PREF_SCENE_MODE);
+        stringListToListPreference(new ArrayList(), KEY_PREF_SCENE_MODE);
     }
 
     private void loadSupportedExposeCompensation() {
-        int minExposComp = mParameters.getMinExposureCompensation();
-        int maxExposComp = mParameters.getMaxExposureCompensation();
+        int minExposComp = -3;
+        int maxExposComp = 3;
         List<String> exposComp = new ArrayList<>();
         for (int value = minExposComp; value <= maxExposComp; value++) {
             exposComp.add(Integer.toString(value));
@@ -231,46 +180,43 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 setJpegQuality(sharedPreferences.getString(key, ""));
                 break;
         }
-        mCamera.stopPreview();
-        mCamera.setParameters(mParameters);
-        mCamera.startPreview();
-        listener.updatepreview();
+        listener.updateSetting();
 
     }
 
     public static void setPreviewSize(String value) {
         String[] split = value.split("x");
-        mParameters.setPreviewSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        //mParameters.setPreviewSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 
     private static void setPictureSize(String value) {
         String[] split = value.split("x");
         DebugUtil.debug("长="+Integer.parseInt(split[0])+"\n宽="+Integer.parseInt(split[1]));
-        mParameters.setPictureSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        //mParameters.setPictureSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 
     private static void setFocusMode(String value) {
-        mParameters.setFocusMode(value);
+        
     }
 
     private static void setFlashMode(String value) {
-        mParameters.setFlashMode(value);
+       
     }
 
     private static void setWhiteBalance(String value) {
-        mParameters.setWhiteBalance(value);
+        
     }
 
     private static void setSceneMode(String value) {
-        mParameters.setSceneMode(value);
+        
     }
 
     private static void setExposComp(String value) {
-        mParameters.setExposureCompensation(Integer.parseInt(value));
+        
     }
 
     private static void setJpegQuality(String value) {
-        mParameters.setJpegQuality(Integer.parseInt(value));
+        
     }
 
     private static void initSummary(Preference pref) {

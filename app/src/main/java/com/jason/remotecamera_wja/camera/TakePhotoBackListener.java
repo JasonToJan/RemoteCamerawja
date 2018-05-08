@@ -5,5 +5,5 @@ package com.jason.remotecamera_wja.camera;
  */
 
 public interface TakePhotoBackListener {
-    void uploadPictureToB(byte[] data);
+    void uploadPictureToB(String fileName);
 }

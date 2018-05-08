@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.jason.remotecamera_wja.R;
 import com.jason.remotecamera_wja.util.BitmapUtil;
-import com.jason.remotecamera_wja.util.DebugUtil;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -86,13 +85,13 @@ public class MyGridViewAdapter extends BaseAdapter {
         //首先我们先通过cancelPotentialLoad方法去判断imageview是否有线程正在为它加载图片资源，
         //如果有现在正在加载，那么判断加载的这个图片资源（url）是否和现在的图片资源一样，不一样则取消之前的线程（之前的下载线程作废）。
         //见下面cancelPotentialLoad方法代码
+
         if (cancelPotentialLoad(url, viewHolder.imageview_thumbnail)) {
             AsyncLoadImageTask task = new AsyncLoadImageTask(viewHolder.imageview_thumbnail);
             LoadedDrawable loadedDrawable = new LoadedDrawable(task);
             viewHolder.imageview_thumbnail.setImageDrawable(loadedDrawable);
             task.execute(position);
         }
-
 
         viewHolder.textview_test.setText((position+1)+"");
         return convertView;
@@ -106,7 +105,7 @@ public class MyGridViewAdapter extends BaseAdapter {
         if(bitmap != null){
             return bitmap;
         }
-        DebugUtil.debug("当前图片url为："+url);
+        //DebugUtil.debug("当前图片url为："+url);
         //bitmap = BitmapFactory.decodeFile(url);
         //这里我们不用BitmapFactory.decodeFile(url)这个方法
         //用decodeFileDescriptor()方法来生成bitmap会节省内存
@@ -143,8 +142,9 @@ public class MyGridViewAdapter extends BaseAdapter {
 
             Bitmap bitmap = null;
             this.url = mList.get(params[0]);
-            bitmap=BitmapUtil.rotateBitmapByDegree(getBitmapFromUrl(url),
-                    BitmapUtil.readPictureDegree(url));
+           /* bitmap=BitmapUtil.rotateBitmapByDegree(getBitmapFromUrl(url),
+                    BitmapUtil.readPictureDegree(url));*/
+            bitmap=getBitmapFromUrl(url);
             PicturesAll.gridviewBitmapCaches.put(mList.get(params[0]), bitmap);
             return bitmap;
         }
@@ -205,8 +205,7 @@ public class MyGridViewAdapter extends BaseAdapter {
 
         public LoadedDrawable(AsyncLoadImageTask loadImageTask) {
             super(Color.TRANSPARENT);
-            loadImageTaskReference =
-                    new WeakReference<AsyncLoadImageTask>(loadImageTask);
+            loadImageTaskReference = new WeakReference<AsyncLoadImageTask>(loadImageTask);
         }
 
         public AsyncLoadImageTask getLoadImageTask() {

@@ -61,7 +61,7 @@ public class PicturesAll extends AppCompatActivity implements AbsListView.OnScro
         mList = new ArrayList<String>();
         String url = Constant.picturePath;
         getFiles(url);
-        DebugUtil.debug("当前图片List为："+mList.toString());
+        //DebugUtil.debug("当前图片List为："+mList.toString());
     }
 
     /*
@@ -107,6 +107,7 @@ public class PicturesAll extends AppCompatActivity implements AbsListView.OnScro
 
     //释放图片的函数
     private void recycleBitmapCaches(int fromPosition,int toPosition){
+
         Bitmap delBitmap = null;
         for(int del=fromPosition;del<toPosition;del++){
             delBitmap = gridviewBitmapCaches.get(mList.get(del));
@@ -119,6 +120,7 @@ public class PicturesAll extends AppCompatActivity implements AbsListView.OnScro
                 delBitmap = null;
             }
         }
+
     }
 
     @Override
@@ -127,6 +129,7 @@ public class PicturesAll extends AppCompatActivity implements AbsListView.OnScro
         //注释：firstVisibleItem为第一个可见的Item的position，从0开始，随着拖动会改变
         //visibleItemCount为当前页面总共可见的Item的项数
         //totalItemCount为当前总共已经出现的Item的项数
+
         recycleBitmapCaches(0,firstVisibleItem);
         recycleBitmapCaches(firstVisibleItem+visibleItemCount, totalItemCount);
 

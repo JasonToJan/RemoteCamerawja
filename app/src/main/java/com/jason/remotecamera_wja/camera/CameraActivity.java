@@ -27,9 +27,12 @@ import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DensityUtil;
 import com.jason.remotecamera_wja.util.DisplayUtil;
 import com.jason.remotecamera_wja.util.NetworkUtil;
+import com.jason.remotecamera_wja.util.StringUtils;
 import com.jason.remotecamera_wja.util.ToastUtil;
 import com.jason.remotecamera_wja.view.RectImageView;
 
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -63,7 +66,6 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     private ClientConnector mConnector;
     private String mDstName = Constant.ServiceAddress;
     private int mDstPort = Constant.DEFAULT_PORT;
-    private UpLoadPhotoBackListener listener;//监听A端是否拍照完毕
 
     public Handler mHandler = new Handler() {
         @Override
@@ -73,12 +75,16 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
            }else if(msg.what==0x11) {
                 Bundle bundle = msg.getData();
                 ToastUtil.showToast(InitApp.AppContext,bundle.getString("msg"));
-                if(bundle.getString("msg").equals(Constant.TOKEPHOTO)){
-                    //如果B端点击了拍照
-                    tokeAPhoto();
-                }else{
-
+                String flag=bundle.getString("msg");
+                switch (flag){
+                    case Constant.TOKEPHOTO:
+                        tokeAPhoto();
+                        break;
+                    case Constant.AREA_TOKEPHOTO:
+                        makeAreaTokePhoto();
+                        break;
                 }
+
             }
         }
     };
@@ -123,26 +129,6 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     try {
                         socket = serverSocket.accept();
                         new Thread(new ServerThread(socket,mHandler)).start();
-                        //启动一个新的线程，接管与当前客户端的交互会话
-                        /*//发送消息
-                        OutputStream output = socket.getOutputStream();
-                        output.write(str.getBytes("utf-8"));
-                        output.flush();
-                        socket.shutdownOutput();*/
-                        //接收的消息
-                        //读取从客户端发送过来的数据
-                        //CharBuffer charbuffer=CharBuffer.allocate(8192);
-                       /* BufferedReader bff = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        String line = "";
-                        String data="";
-                        while ((line = bff.readLine())!=null) {
-                            data +=line;
-                        }
-                        bundle.putString("msg", data);
-                        msg.setData(bundle);
-                        mHandler.sendMessage(msg);*/
-                        /*bff.close();
-                        socket.close();*/
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -152,16 +138,46 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         }.start();
     }
 
-    public void sendMessage(final byte[] data){
+    public void sendMessage(final String fileName){
         new Thread() {
             public void run() {
                 Message msg = new Message();
                 msg.what = 0x11;
                 try {
-                    //发送消息
-                    String str="send pictures";
+
                     OutputStream output = socket.getOutputStream();
-                    output.write(str.getBytes("utf-8"));
+                    DataOutputStream dos=new DataOutputStream(output);
+                    FileInputStream fis = new FileInputStream(fileName);
+                    int size=fis.available();
+                    byte[] data = new byte[size];
+                    fis.read(data);
+
+                    //DebugUtil.debug("图片大小为"+size+"\n图片byte数组为："+ StringUtils.byteArrayToStr(data));
+
+                    dos.writeInt(size);
+                    dos.writeShort(Integer.valueOf(Constant.TOKEPHOTO));
+                    dos.write(data);
+
+                    //dos.close();
+                    fis.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
+    }
+
+    public void sendMessage(final int flag,final String message){
+        new Thread() {
+            public void run() {
+                Message msg = new Message();
+                msg.what = 0x11;
+                try {
+                    OutputStream output = socket.getOutputStream();
+                    DataOutputStream dos=new DataOutputStream(output);
+                    dos.writeInt(StringUtils.strToByteArray(message).length);                    dos.writeShort(flag);
+                    dos.write(StringUtils.strToByteArray(message));
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -250,10 +266,11 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
             if(!isRectPhoto){
                 mPreview.takePicture2(priviewPhoto,new TakePhotoBackListener(){
                     @Override
-                    public void uploadPictureToB(byte[] data) {
+                    public void uploadPictureToB(String fileName) {
                         //上传到B端
-                        DebugUtil.debug("上传到B端："+data.toString());
+                        DebugUtil.debug("上传到B端："+fileName);
 
+                        sendMessage(fileName);
                     }
                 });
             }else{
@@ -262,14 +279,31 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                 mPreview.takePicture2(priviewPhoto, mpreview_width, mpreview_height,
                         rect_x,rect_y,new TakePhotoBackListener(){
                             @Override
-                            public void uploadPictureToB(byte[] data) {
+                            public void uploadPictureToB(String fileName) {
                                 //上传到B端
-                                DebugUtil.debug("上传到B端："+data.toString());
-
+                                DebugUtil.debug("上传到B端："+fileName);
+                                sendMessage(fileName);
                             }
                         });
 
             }
+        }
+    }
+
+    public void makeAreaTokePhoto(){
+        if(mPreview!=null&&priviewPhoto!=null&&rectImageView!=null){
+            if(!isRectPhoto){
+                isRectPhoto=true;
+                makeARect(isRectPhoto);
+                //发送设置成功事件
+                sendMessage(Constant.AREA_TOKEPHOTO_SUCCESS,"已设置区域拍照！");
+            }else{
+                isRectPhoto=false;
+                makeARect(isRectPhoto);
+                //发送设置成功事件
+                sendMessage(Constant.AREA_TOKEPHOTO_SUCCESS,"已取消区域拍照！");
+            }
+
         }
     }
 

@@ -19,8 +19,9 @@ public class Constant {
     public final static int ISCONNECT=1;
     public final static int CONNECTTING=2;
     public final static int OFFCONNECT=3;
+    public final static String ServiceAddress1= "192.168.43.70";
     public final static String ServiceAddress= "192.168.1.182";
-    public final static int DEFAULT_PORT=10002;
+    public final static int DEFAULT_PORT=10003;
 
     //B端发送的指令Key
     public final static String TOKEPHOTO="101";
@@ -32,6 +33,9 @@ public class Constant {
     public final static String SCENE_MODE="107";
     public final static String EXPOS_COMP="108";
     public final static String JPEG_QUALITY="109";
+    public final static String AREA_TOKEPHOTO="110";
+
+    public final static int AREA_TOKEPHOTO_SUCCESS=200;
 
     public final static String AuthToA="A";
     public final static String AuthToB="B";

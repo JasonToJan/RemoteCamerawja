@@ -1,34 +1,59 @@
 package com.jason.remotecamera_wja.socketTest;
 
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
+import com.jason.remotecamera_wja.app.Constant;
+import com.jason.remotecamera_wja.util.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.CharBuffer;
+
 
 //接收消息线程
 public class ReceiveThread extends Thread {
 
     private Socket socket;
+    private Handler handler;
+    private int STATE_FROM_SERVER_OK=0;
 
-    public ReceiveThread(Socket socket){
+    public ReceiveThread(Socket socket, Handler handler){
         this.socket=socket;
+        this.handler=handler;
     }
     @Override
-    public void run(){
-        while(true){
-            try{
-                Reader reader=new InputStreamReader(socket.getInputStream());
-                CharBuffer charbuffer=CharBuffer.allocate(8192);
-                int index=-1;
-                while((index=reader.read(charbuffer))!=-1){
-                    charbuffer.flip();//设置从0到刚刚读取到的位置
-                    Log.d("测试Socket","client:"+charbuffer.toString());
+    public void run() {
+
+        while (true) {
+            try {
+                String flag = "";
+                if (socket == null || socket.isClosed()){
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(Constant.ServiceAddress, Constant.DEFAULT_PORT), 3000);
                 }
-            }catch(Exception e){
+                InputStream in = socket.getInputStream();
+                byte[] bytes = new byte[in.available()];
+                in.read(bytes);
+                //读出B端下发的指令
+                flag = StringUtils.byteArrayToStr(bytes);
+                if (flag != null && !flag.equals("")) {
+                    Message msg = Message.obtain();
+                    msg.obj = flag;
+                    msg.what = STATE_FROM_SERVER_OK;
+                    handler.sendMessage(msg);
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
+
 }

@@ -1,10 +1,11 @@
-package com.jason.remotecamera_wja.camera;
+package com.jason.remotecamera_wja.socketTest;
 
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import com.jason.remotecamera_wja.app.Constant;
 import com.jason.remotecamera_wja.util.StringUtils;
 
 import java.io.IOException;
@@ -46,11 +47,11 @@ public class ServerThread implements Runnable{
                 doRead(in);
                 doSomeThing(flag,handler);
                 //发送数据回客户端
-
-                /*if(flag.equals(Constant.TOKEPHOTO)){
+                doWrite(out,flag.getBytes());
+                if(flag.equals(Constant.TOKEPHOTO)){
                     //如果是拍照，需要传递本机相册给B端
-                    //doWrite(out,flag.getBytes("utf-8"));
-                }*/
+
+                }
             }
 
         } catch (IOException e) {
