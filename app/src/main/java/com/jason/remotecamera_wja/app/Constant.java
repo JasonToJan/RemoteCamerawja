@@ -25,18 +25,37 @@ public class Constant {
 
     //B端发送的指令Key
     public final static String TOKEPHOTO="101";
-    public final static String PREVIEWSIZW="102";
-    public final static String PHOTOSIZE="103";
+    public final static String PICTURE_SIZE="103";
     public final static String FLASH_MODE="104";
     public final static String FOCUS_MODE="105";
     public final static String WHITE_BALANCE="106";
-    public final static String SCENE_MODE="107";
     public final static String EXPOS_COMP="108";
     public final static String JPEG_QUALITY="109";
     public final static String AREA_TOKEPHOTO="110";
+    public final static String GETPARAMSFROMA="301";
 
+    //B端发送的标志位
+    public final static int TOKEPHONTFLAG=11;
+    public final static int AREAFLAG=12;
+    public final static int PARAMSFLAG=13;
+    public final static int PICTUREFLAG=14;
+    public final static int FLASHFALG=15;
+    public final static int FOCUSFALG=16;
+    public final static int WHITEFALG=17;
+    public final static int EXPOSFALG=18;
+    public final static int JPEGFALG=19;
+    public final static int DISCONNECT=500;
+
+    //A端回复B端的指令
+    public final static int RESPONSE_TOKEPHOTO=101;
     public final static int AREA_TOKEPHOTO_SUCCESS=200;
-
-    public final static String AuthToA="A";
-    public final static String AuthToB="B";
+    public final static int RESPONSE_PARAMS=201;
+    public final static int RESPONSE_NORMAL=210;
+    public final static int RESPONSE_PICTURE=202;
+    public final static int RESPONSE_FLASH=203;
+    public final static int RESPONSE_FOCUS=204;
+    public final static int RESPONSE_WHITE=205;
+    public final static int RESPONSE_EXPOS=206;
+    public final static int RESPONSE_JPEG=207;
+    
 }

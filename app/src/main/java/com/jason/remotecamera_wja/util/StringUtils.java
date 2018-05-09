@@ -95,7 +95,7 @@ public class StringUtils {
         return bt3;
     }
 
-    public static byte[] ObjectToByte(java.lang.Object obj) {
+    public static byte[] ObjectToByte(Object obj) {
         byte[] bytes = null;
         try {
             // object to bytearray

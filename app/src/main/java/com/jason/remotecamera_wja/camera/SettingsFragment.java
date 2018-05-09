@@ -42,13 +42,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         void updatepreview();
     }
 
-    public void setUpdatepreviewListener(UpdatepreviewListener listener){
-        this.listener=listener;
-    }
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        addPreferencesFromResource(R.xml.preferences_a);
         //getActivity().setTheme(R.style.PreferenceTheme);
 
         loadSupportedPreviewSize();
@@ -64,21 +60,39 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public static void passCamera(CameraPreview cameraPreview,Camera camera,UpdatepreviewListener mylistener) {
         mCamera = camera;
         mParameters = camera.getParameters();
-
         mCameraPreview = cameraPreview;
         listener=mylistener;
     }
 
+    public static void setUpdate(SharedPreferences sharedPrefs) {
+
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(KEY_PREF_PREV_SIZE, getDefaultPreviewSize());
+        editor.putString(KEY_PREF_PIC_SIZE, getDefaultPictureSize());
+        editor.putString(KEY_PREF_FLASH_MODE, getDefaultFlashMode());
+        editor.putString(KEY_PREF_WHITE_BALANCE, getDefaultWhiteBlance());
+        editor.putString(KEY_PREF_EXPOS_COMP, getDefaultExposure());
+        editor.putString(KEY_PREF_JPEG_QUALITY, getDefaultJpegQuality());
+        editor.putString(KEY_PREF_VIDEO_SIZE, getDefaultVideoSize());
+        editor.putString(KEY_PREF_FOCUS_MODE, getDefaultFocusMode());
+        editor.apply();
+
+    }
+
     public static void setDefault(SharedPreferences sharedPrefs) {
-        String valPreviewSize = sharedPrefs.getString(KEY_PREF_PREV_SIZE, null);
-        if (valPreviewSize == null) {
-            SharedPreferences.Editor editor = sharedPrefs.edit();
-            editor.putString(KEY_PREF_PREV_SIZE, getDefaultPreviewSize());
-            editor.putString(KEY_PREF_PIC_SIZE, getDefaultPictureSize());
-            editor.putString(KEY_PREF_VIDEO_SIZE, getDefaultVideoSize());
-            editor.putString(KEY_PREF_FOCUS_MODE, getDefaultFocusMode());
-            editor.apply();
-        }
+
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(KEY_PREF_PREV_SIZE, getDefaultPreviewSize());
+        DebugUtil.debug("在SettingsFragment中，setDefault方法中，预览的size为："+sharedPrefs.getString(KEY_PREF_PREV_SIZE, ""));
+        editor.putString(KEY_PREF_PIC_SIZE, getDefaultPictureSize());
+        editor.putString(KEY_PREF_FLASH_MODE, getDefaultFlashMode());
+        editor.putString(KEY_PREF_WHITE_BALANCE, getDefaultWhiteBlance());
+        editor.putString(KEY_PREF_EXPOS_COMP, getDefaultExposure());
+        editor.putString(KEY_PREF_JPEG_QUALITY, getDefaultJpegQuality());
+        editor.putString(KEY_PREF_VIDEO_SIZE, getDefaultVideoSize());
+        editor.putString(KEY_PREF_FOCUS_MODE, getDefaultFocusMode());
+        editor.apply();
+
     }
 
     public static String getDefaultPreviewSize() {
@@ -86,17 +100,37 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         return previewSize.width + "x" + previewSize.height;
     }
 
-    private static String getDefaultPictureSize() {
+    public static String getDefaultPictureSize() {
         Size pictureSize = mParameters.getPictureSize();
         return pictureSize.width + "x" + pictureSize.height;
     }
 
-    private static String getDefaultVideoSize() {
+    public static String getDefaultFlashMode() {
+        String flashMode = mParameters.getFlashMode();
+        return flashMode;
+    }
+
+    public static String getDefaultWhiteBlance() {
+        String whiteBalance = mParameters.getWhiteBalance();
+        return whiteBalance;
+    }
+
+    public static String getDefaultExposure() {
+        int exposureCompensation = mParameters.getExposureCompensation();
+        return String.valueOf(exposureCompensation);
+    }
+
+    public static String getDefaultJpegQuality() {
+        int jpegQuality = mParameters.getJpegQuality();
+        return String.valueOf(jpegQuality);
+    }
+
+    public static String getDefaultVideoSize() {
         Size VideoSize = mParameters.getPreferredPreviewSizeForVideo();
         return VideoSize.width + "x" + VideoSize.height;
     }
 
-    private static String getDefaultFocusMode() {
+    public static String getDefaultFocusMode() {
         List<String> supportedFocusModes = mParameters.getSupportedFocusModes();
         if (supportedFocusModes.contains("continuous-picture")) {
             return "continuous-picture";
@@ -113,6 +147,8 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         setSceneMode(sharedPref.getString(KEY_PREF_SCENE_MODE, ""));
         setExposComp(sharedPref.getString(KEY_PREF_EXPOS_COMP, ""));
         setJpegQuality(sharedPref.getString(KEY_PREF_JPEG_QUALITY, ""));
+
+        DebugUtil.debug("在SettingsFragment中，init方法中，预览的size为："+sharedPref.getString(KEY_PREF_PREV_SIZE, ""));
 
         mCamera.stopPreview();
         int rotation=getDisplayOrientation();
@@ -153,31 +189,31 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         return result;
     }
 
-    private void loadSupportedPreviewSize() {
+    public void loadSupportedPreviewSize() {
         cameraSizeListToListPreference(mParameters.getSupportedPreviewSizes(), KEY_PREF_PREV_SIZE);
     }
 
-    private void loadSupportedPictureSize() {
+    public void loadSupportedPictureSize() {
         cameraSizeListToListPreference(mParameters.getSupportedPictureSizes(), KEY_PREF_PIC_SIZE);
     }
 
-    private void loadSupportedFlashMode() {
+    public void loadSupportedFlashMode() {
         stringListToListPreference(mParameters.getSupportedFlashModes(), KEY_PREF_FLASH_MODE);
     }
 
-    private void loadSupportedFocusMode() {
+    public void loadSupportedFocusMode() {
         stringListToListPreference(mParameters.getSupportedFocusModes(), KEY_PREF_FOCUS_MODE);
     }
 
-    private void loadSupportedWhiteBalance() {
+    public void loadSupportedWhiteBalance() {
         stringListToListPreference(mParameters.getSupportedWhiteBalance(), KEY_PREF_WHITE_BALANCE);
     }
 
-    private void loadSupportedSceneMode() {
+    public void loadSupportedSceneMode() {
         stringListToListPreference(mParameters.getSupportedSceneModes(), KEY_PREF_SCENE_MODE);
     }
 
-    private void loadSupportedExposeCompensation() {
+    public void loadSupportedExposeCompensation() {
         int minExposComp = mParameters.getMinExposureCompensation();
         int maxExposComp = mParameters.getMaxExposureCompensation();
         List<String> exposComp = new ArrayList<>();
@@ -187,7 +223,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         stringListToListPreference(exposComp, KEY_PREF_EXPOS_COMP);
     }
 
-    private void cameraSizeListToListPreference(List<Size> list, String key) {
+    public void cameraSizeListToListPreference(List<Size> list, String key) {
         List<String> stringList = new ArrayList<>();
         for (Size size : list) {
             String stringSize = size.width + "x" + size.height;
@@ -196,18 +232,20 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         stringListToListPreference(stringList, key);
     }
 
-    private void stringListToListPreference(List<String> list, String key) {
+    public void stringListToListPreference(List<String> list, String key) {
         final CharSequence[] charSeq = list.toArray(new CharSequence[list.size()]);
         ListPreference listPref = (ListPreference) getPreferenceScreen().findPreference(key);
         listPref.setEntries(charSeq);
         listPref.setEntryValues(charSeq);
     }
 
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         updatePrefSummary(findPreference(key));
         switch (key) {
             case KEY_PREF_PREV_SIZE:
                 setPreviewSize(sharedPreferences.getString(key, ""));
+                DebugUtil.debug("在onSharedPreferenceChanged中，更新的预览size为："+sharedPreferences.getString(key, ""));
                 break;
             case KEY_PREF_PIC_SIZE:
                 setPictureSize(sharedPreferences.getString(key, ""));
@@ -243,37 +281,37 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         mParameters.setPreviewSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 
-    private static void setPictureSize(String value) {
+    public static void setPictureSize(String value) {
         String[] split = value.split("x");
         DebugUtil.debug("长="+Integer.parseInt(split[0])+"\n宽="+Integer.parseInt(split[1]));
         mParameters.setPictureSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
 
-    private static void setFocusMode(String value) {
+    public static void setFocusMode(String value) {
         mParameters.setFocusMode(value);
     }
 
-    private static void setFlashMode(String value) {
+    public static void setFlashMode(String value) {
         mParameters.setFlashMode(value);
     }
 
-    private static void setWhiteBalance(String value) {
+    public static void setWhiteBalance(String value) {
         mParameters.setWhiteBalance(value);
     }
 
-    private static void setSceneMode(String value) {
+    public static void setSceneMode(String value) {
         mParameters.setSceneMode(value);
     }
 
-    private static void setExposComp(String value) {
+    public static void setExposComp(String value) {
         mParameters.setExposureCompensation(Integer.parseInt(value));
     }
 
-    private static void setJpegQuality(String value) {
+    public static void setJpegQuality(String value) {
         mParameters.setJpegQuality(Integer.parseInt(value));
     }
 
-    private static void initSummary(Preference pref) {
+    public static void initSummary(Preference pref) {
         if (pref instanceof PreferenceGroup) {
             PreferenceGroup prefGroup = (PreferenceGroup) pref;
             for (int i = 0; i < prefGroup.getPreferenceCount(); i++) {
@@ -284,7 +322,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         }
     }
 
-    private static void updatePrefSummary(Preference pref) {
+    public static void updatePrefSummary(Preference pref) {
         if (pref instanceof ListPreference) {
             pref.setSummary(((ListPreference) pref).getEntry());
         }

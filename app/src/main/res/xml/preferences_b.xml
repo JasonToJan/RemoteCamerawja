@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:key="picture_size"
+        android:title="照片分辨率" />
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:defaultValue="auto"
+        android:key="flash_mode"
+        android:title="闪光灯" />
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:key="focus_mode"
+        android:title="对焦模式" />
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:defaultValue="auto"
+        android:key="white_balance"
+        android:title="白平衡" />
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:defaultValue="0"
+        android:key="exposure_compensation"
+        android:title="曝光补偿" />
+    <ListPreference
+        android:layout="@layout/partb_preference"
+        android:defaultValue="100"
+        android:key="jpeg_quality"
+        android:title="照片品质" />
+</PreferenceScreen>

@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/picture_details"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="查看图片信息"/>
+    <item
+        android:id="@+id/picture_delete"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="删除图片"/>
+</menu>

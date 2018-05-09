@@ -8,12 +8,6 @@
     android:background="@color/main_bg0"
     tools:context=".parta.PartAMain">
 
-    <FrameLayout
-        android:id="@+id/camera_setting"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <RelativeLayout
         android:layout_marginTop="20dp"
         android:layout_width="match_parent"
@@ -26,8 +20,8 @@
             android:text="控制状态："
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:layout_marginRight="16dp"
-            android:layout_centerInParent="true"
+            android:layout_marginLeft="16dp"
+            android:layout_alignParentLeft="true"
             />
 
         <TextView
@@ -85,6 +79,12 @@
             />
 
     </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/camera_setting"
+        android:visibility="gone"
+        android:layout_width="500dp"
+        android:layout_height="1000dp" />
 
     <RelativeLayout
         android:layout_width="match_parent"

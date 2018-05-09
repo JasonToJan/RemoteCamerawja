@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:background="#ff000000">
 
-    <com.jason.remotecamera_wja.view.ZoomImageView2
+    <com.jason.remotecamera_wja.view.ZoomImageView
         android:id="@+id/zoom_image_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

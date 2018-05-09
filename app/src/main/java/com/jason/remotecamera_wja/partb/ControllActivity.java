@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -22,7 +23,9 @@ import com.jason.remotecamera_wja.app.Constant;
 import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DialogUtil;
+import com.jason.remotecamera_wja.util.JsonUtils;
 import com.jason.remotecamera_wja.util.PerfectClickListener;
+import com.jason.remotecamera_wja.util.SharePreferencesUtil;
 import com.jason.remotecamera_wja.util.StringUtils;
 import com.jason.remotecamera_wja.util.ToastUtil;
 
@@ -62,7 +65,7 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
         public void handleMessage(Message msg) {
             switch (msg.what){
                 case STATE_FROM_SERVER_OK:{
-                    partb_status_tv.setText("正在控制中");
+                    partb_status_tv.setText("正在控制拍照");
                     Bundle bundle=msg.getData();
                     byte[] data= bundle.getByteArray(Constant.TOKEPHOTO);
                     //ToastUtil.showToast(InitApp.AppContext,"获取的图片长度为："+data.length);
@@ -87,10 +90,32 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                     break;
                 }
                 case Constant.AREA_TOKEPHOTO_SUCCESS:{
-                    partb_status_tv.setText("正在控制中");
                     Bundle bundle=msg.getData();
                     String message=bundle.getString("msg");
                     ToastUtil.showToast(InitApp.AppContext,message);
+                    partb_status_tv.setText(message);
+                    break;
+                }
+                case Constant.RESPONSE_PARAMS:{
+                    partb_status_tv.setText("正在设置参数");
+                    Bundle bundle=msg.getData();
+                    String message=bundle.getString("msg");
+                    ToastUtil.showToast(InitApp.AppContext,"正在读取A端相机参数！");
+                    DebugUtil.debug("A端相机参数为："+message);
+                    //存放到SharePerfences文件中
+                    String picture_size=JsonUtils.getString(message,"picture_size","640x480");
+                    String flash_mode=JsonUtils.getString(message,"flash_mode","auto");
+                    String focus_mode=JsonUtils.getString(message,"focus_mode","auto");
+                    String white_balance=JsonUtils.getString(message,"white_balance","auto");
+                    String exposure_compensation=JsonUtils.getString(message,"exposure_compensation","0");
+                    String jpeg_quality=JsonUtils.getString(message,"jpeg_quality","100");
+                    SharePreferencesUtil.setParam(ControllActivity.this,"picture_size",picture_size);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"flash_mode",flash_mode);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"focus_mode",focus_mode);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"white_balance",white_balance);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"exposure_compensation",exposure_compensation);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"jpeg_quality",jpeg_quality);
+                    PartBSettingsFragment.init();
                     break;
                 }
 
@@ -113,7 +138,6 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
         initView();
         initCamera();
         //开启消息接收线程
-        //new ReceiveThread(socket,mHandler).start();
         reveiveMessage(mHandler);
         setListener();
 
@@ -143,7 +167,7 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                             }
                             if(!data.equals("")){
                                 switch (flag){
-                                    case 101:{
+                                    case Constant.RESPONSE_TOKEPHOTO:{
                                         Message msg = Message.obtain();
                                         Bundle bundle=new Bundle();
                                         bundle.putByteArray(Constant.TOKEPHOTO,data);
@@ -161,6 +185,15 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                                         handler.sendMessage(msg);
                                         break;
                                     }
+                                    case Constant.RESPONSE_PARAMS:{
+                                        Message msg = Message.obtain();
+                                        Bundle bundle=new Bundle();
+                                        bundle.putString("msg", StringUtils.byteArrayToStr(data));
+                                        msg.setData(bundle);
+                                        msg.what = Constant.RESPONSE_PARAMS;
+                                        handler.sendMessage(msg);
+                                        break;
+                                    }
                                 }
 
                             }
@@ -169,7 +202,6 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                         Message msg = Message.obtain();
                         msg.what = STATE_FROM_SERVER_ERROR;
                         handler.sendMessage(msg);
-                        DebugUtil.debug(e.getMessage());
                         /*throw new RuntimeException("错误: " + e.getMessage());*/
                     }
 
@@ -186,20 +218,21 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
         partb_status_tv=findViewById(R.id.partb_status_tv);
         controll_iv=findViewById(R.id.controll_iv);
         camera_setting=findViewById(R.id.camera_setting);
+        partb_status_tv.setText("已连接");
     }
 
     public void initCamera(){
 
-       /* PartBSettingsFragment.passCamera(this);
-        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-        PartBSettingsFragment.setDefault(PreferenceManager.getDefaultSharedPreferences(this));
-        PartBSettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
-     */
+        PartBSettingsFragment.passCamera(this);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences_b, false);
+        //PartBSettingsFragment.setDefault(PreferenceManager.getDefaultSharedPreferences(this));
+        //PartBSettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
     }
 
     @Override
-    public void updateSetting(){
+    public void updateSetting(int flag,String value){
         //这里通过B端设置了某些属性，然后这里需要上传给A端，自己来设置属性
+        new SendThread(socket,flag,value).start();
     }
 
     public void setListener(){
@@ -207,39 +240,40 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
             @Override
             protected void onNoDoubleClick(View v) {
                 DialogUtil.getInstance().tokeAPhoto(ControllActivity.this);
-                /*if(socket!=null&&!socket.isClosed()) {
-                    try{
-                        socket.close();
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }
-                }*/
-                new SendThread(socket,Constant.TOKEPHOTO).start();
-                //mConnManager.receiveFromServer(mHandler);
+                if(isClickSetting){
+                    isClickSetting=false;
+                    getFragmentManager().beginTransaction().hide(settingFragment
+                    ).commit();
+                    camera_setting.setVisibility(View.GONE);
+                }
+                new SendThread(socket,Constant.TOKEPHONTFLAG,"接收到B端拍照请求！").start();
             }
         });
         controll_area_btn.setOnClickListener(new PerfectClickListener() {
             @Override
             protected void onNoDoubleClick(View v) {
-                /*if(socket!=null&&!socket.isClosed()) {
-                    try{
-                        socket.close();
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }
-                }*/
-                new SendThread(socket,Constant.AREA_TOKEPHOTO).start();
+                if(isClickSetting){
+                    isClickSetting=false;
+                    getFragmentManager().beginTransaction().hide(settingFragment
+                    ).commit();
+                    camera_setting.setVisibility(View.GONE);
+                }
+                new SendThread(socket,Constant.AREAFLAG,"接收到B端区域拍照请求！").start();
             }
         });
         controll_setting_btn.setOnClickListener(new PerfectClickListener() {
             @Override
             protected void onNoDoubleClick(View v) {
+
                 if(!isClickSetting){
                     isClickSetting=true;
                     settingFragment=new PartBSettingsFragment();
-                    getFragmentManager().beginTransaction().replace(R.id.camera_menu,
+                    getFragmentManager().beginTransaction().replace(R.id.camera_setting,
                             settingFragment).commit();
+                    PartBSettingsFragment.init();
                     camera_setting.setVisibility(View.VISIBLE);//fix 抖动问题
+                    //请求A端相机的参数
+                    new SendThread(socket,Constant.PARAMSFLAG,"接收到B端参数设置请求！").start();
 
                 }else{
                     isClickSetting=false;
@@ -297,5 +331,15 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
         DebugUtil.debug(outputMediaFileUri.toString());
 
         return mediaFile;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }

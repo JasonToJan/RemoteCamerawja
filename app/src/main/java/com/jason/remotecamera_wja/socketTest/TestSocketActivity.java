@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.jason.remotecamera_wja.R;
-import com.jason.remotecamera_wja.app.Constant;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public class TestSocketActivity extends AppCompatActivity implements ClientConne
         public void run() {
             try {
 
-                mConnector.connect(Constant.AuthToA);
+                mConnector.connect("A");
             } catch (IOException e) {
                 e.printStackTrace();
             }

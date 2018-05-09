@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.jason.remotecamera_wja.util.StringUtils;
+import com.jason.remotecamera_wja.util.StringUtil;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,7 +19,8 @@ import java.net.Socket;
 public class ServerThread implements Runnable{
 
     Socket socket = null;
-    String flag;
+    int flag;
+    String message;
     Handler handler;
 
 
@@ -37,20 +39,11 @@ public class ServerThread implements Runnable{
             out  = socket.getOutputStream();
             //使用循环的方式，不停的与客户端交互会话
             while(true){
-                /*try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
+
                 //处理客户端发来的数据
                 doRead(in);
-                doSomeThing(flag,handler);
-                //发送数据回客户端
+                doSomeThing(flag,message,handler);
 
-                /*if(flag.equals(Constant.TOKEPHOTO)){
-                    //如果是拍照，需要传递本机相册给B端
-                    //doWrite(out,flag.getBytes("utf-8"));
-                }*/
             }
 
         } catch (IOException e) {
@@ -66,14 +59,16 @@ public class ServerThread implements Runnable{
         }
     }
 
-    public void doSomeThing(String flag,Handler handler){
-        Message msg = new Message();
-        msg.what = 0x11;
-        Bundle bundle=new Bundle();
-        if(flag!=null&&!flag.equals("")){
-            bundle.putString("msg", flag);
+    public void doSomeThing(int flag,String message,Handler handler){
+
+        if(message!=null){
+            Message msg = new Message();
+            Bundle bundle=new Bundle();
+            msg.what = flag;
+            bundle.putString("msg", message);
             msg.setData(bundle);
             handler.sendMessage(msg);//显示在界面上
+
         }
     }
 
@@ -85,26 +80,21 @@ public class ServerThread implements Runnable{
     public boolean doRead(InputStream in){
         //引用关系，不要在此处关闭流
         try {
-            byte[] bytes = new byte[in.available()];
-            in.read(bytes);
             //读出B端下发的指令
-            flag= StringUtils.byteArrayToStr(bytes);
+            DataInputStream dis=new DataInputStream(in);
+            int size=dis.readInt();
+            flag=dis.readShort();
+            byte[] data=new byte[size];
+            int len=0;
+            while(len<size){
+                len+=dis.read(data,len,size-len);
+            }
+            message= StringUtil.byteArrayToStr(data);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return true;
-    }
-
-    public  boolean doWrite(OutputStream out,byte[] data){
-        //引用关系，不要在此处关闭流
-        try {
-            out.write(data);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return true;
     }
 
