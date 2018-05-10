@@ -69,4 +69,14 @@ public class DialogUtil {
         progressDialog.show();
     }
 
+    public  void makeWifi(Context context) {
+        progressDialog = new Dialog(context,R.style.progress_dialog);
+        progressDialog.setContentView(R.layout.dialog);
+        progressDialog.setCancelable(true);
+        progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        TextView msg = (TextView) progressDialog.findViewById(R.id.id_tv_loadingmsg);
+        msg.setText("正在创建热点...");
+        progressDialog.show();
+    }
+
 }

@@ -18,16 +18,17 @@ import android.widget.Button;
 
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
-import com.jason.remotecamera_wja.camera.CameraActivity;
-import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
+import com.jason.remotecamera_wja.parta.camera.CameraActivity;
+import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.AppUtil;
 
 public class PartAMain extends AppCompatActivity implements View.OnClickListener{
 
+    private static final String TAG = "PartAMain";
     private Button parta_photo_btn;
     private Button parta_picture_btn;
+    private Button parta_makeWifi_btn;
     private AlertDialog mPermissionDialog;
-
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, PartAMain.class)
@@ -80,7 +81,7 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
         switch (flag){
             case 1:
                 if (ContextCompat.checkSelfPermission(PartAMain.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                        &&ContextCompat.checkSelfPermission(PartAMain.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                        &&ContextCompat.checkSelfPermission(PartAMain.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     //同时询问两个权限
                     ActivityCompat.requestPermissions((Activity) PartAMain.this, new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE}, flag);
 

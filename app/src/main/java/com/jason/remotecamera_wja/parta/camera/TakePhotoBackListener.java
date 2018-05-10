@@ -1,4 +1,4 @@
-package com.jason.remotecamera_wja.camera;
+package com.jason.remotecamera_wja.parta.camera;
 
 /**
  * Created by jasonjan on 2018/5/6.

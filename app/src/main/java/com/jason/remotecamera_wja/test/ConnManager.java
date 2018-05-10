@@ -1,4 +1,4 @@
-package com.jason.remotecamera_wja.socketTest;
+package com.jason.remotecamera_wja.test;
 
 /**
  * Created by jasonjan on 2018/5/6.

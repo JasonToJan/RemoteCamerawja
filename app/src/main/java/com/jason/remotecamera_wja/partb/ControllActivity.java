@@ -20,7 +20,7 @@ import android.widget.TextView;
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
 import com.jason.remotecamera_wja.app.Constant;
-import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
+import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DialogUtil;
 import com.jason.remotecamera_wja.util.JsonUtils;
@@ -145,8 +145,6 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
 
     public boolean reveiveMessage(final Handler handler) {
 
-        //从shared文件中获取host地址
-        //dsName= (String)SharePreferencesUtil.getParam(InitApp.AppContext,"host",Constant.ServiceAddress);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -202,7 +200,6 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                         Message msg = Message.obtain();
                         msg.what = STATE_FROM_SERVER_ERROR;
                         handler.sendMessage(msg);
-                        /*throw new RuntimeException("错误: " + e.getMessage());*/
                     }
 
                 }

@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -19,26 +17,16 @@ import android.widget.Button;
 
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
-import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
+import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.AppUtil;
 import com.jason.remotecamera_wja.util.PerfectClickListener;
-import com.jason.remotecamera_wja.util.ToastUtil;
 
 public class PartBMain extends AppCompatActivity{
 
+    private static final String TAG = "PartBMain";
     private Button partb_controll_btn;
     private Button partb_picture_btn;
     private AlertDialog mPermissionDialog;
-
-    public static Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what==0x11) {
-                Bundle bundle = msg.getData();
-                ToastUtil.showToast(InitApp.AppContext,bundle.getString("msg"));
-            }
-        };
-    };
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, PartBMain.class)
@@ -58,20 +46,12 @@ public class PartBMain extends AppCompatActivity{
     public void initView(){
         partb_controll_btn=findViewById(R.id.partb_controll_btn);
         partb_picture_btn=findViewById(R.id.partb_picture_btn);
-
     }
 
     public void setListener(){
         partb_controll_btn.setOnClickListener(new PerfectClickListener() {
             @Override
             protected void onNoDoubleClick(View v) {
-                //DialogUtil.getInstance().showLoading(PartBMain.this);
-                /*new Handler().postDelayed(new Runnable(){
-                    public void run() {
-                        DialogUtil.getInstance().closeDialog();
-
-                    }
-                }, 1000);*/
                 checkPermission(1);
             }
         });
@@ -82,8 +62,8 @@ public class PartBMain extends AppCompatActivity{
                 checkPermission(2);
             }
         });
-
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -100,7 +80,7 @@ public class PartBMain extends AppCompatActivity{
                 if (ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
                     //权限还没有授予，需要在这里写申请权限的代码
                     ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 }else {
                     //权限已经被授予，在这里直接写要执行的相应方法即可
                     ControllActivity.launch("请求控制中...");
@@ -116,6 +96,7 @@ public class PartBMain extends AppCompatActivity{
                     PicturesAll.launch("pictures");
                 }
                 break;
+
         }
     }
 

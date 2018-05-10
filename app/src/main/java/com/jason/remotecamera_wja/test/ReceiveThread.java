@@ -1,4 +1,4 @@
-package com.jason.remotecamera_wja.socketTest;
+package com.jason.remotecamera_wja.test;
 
 import android.os.Handler;
 import android.os.Message;

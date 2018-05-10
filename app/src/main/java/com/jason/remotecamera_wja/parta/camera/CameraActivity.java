@@ -1,17 +1,14 @@
-package com.jason.remotecamera_wja.camera;
+package com.jason.remotecamera_wja.parta.camera;
 
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,11 +17,10 @@ import android.widget.RelativeLayout;
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.R;
 import com.jason.remotecamera_wja.app.Constant;
-import com.jason.remotecamera_wja.parta.pictures.PicturesAll;
+import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.AppUtil;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DensityUtil;
-import com.jason.remotecamera_wja.util.DisplayUtil;
 import com.jason.remotecamera_wja.util.NetworkUtil;
 import com.jason.remotecamera_wja.util.StringUtils;
 import com.jason.remotecamera_wja.util.ToastUtil;
@@ -40,29 +36,28 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
-public class CameraActivity extends Activity implements SettingsFragment.UpdatepreviewListener{
+/**
+ * A端相机主页面，实现了设置页面的一个监听器，当设置了某一个属性后，在相机主页面做相应的改变
+ */
+public class CameraActivity extends Activity implements SettingsFragment.UpdatepreviewListener,View.OnClickListener{
 
     private static final String TAG = "CameraActivity";
-    private boolean isClickSetting=false;
-    private CameraPreview mPreview;
-    private Button settings;
-    private Button takePhoto;
-    private ImageView priviewPhoto;
-    private Button rectPhoto;
-    private RectImageView rectImageView;
-    private Fragment settingFragment;
-    private FrameLayout camera_menu;
-    float previewRate = -1f;
-    int DST_CENTER_RECT_WIDTH = 600;
-    int DST_CENTER_RECT_HEIGHT = 600;
-    private boolean isRectPhoto=false;
-    private RelativeLayout preview;
-    private int mpreview_width;
-    private int mpreview_height;
-
-    public static ServerSocket serverSocket = null;
-    public Socket socket=null;
+    private boolean isClickSetting=false;//是否点击了设置
+    private CameraPreview mPreview;//相机预览的视图，自定义SurfaceView
+    private Button settings;//设置按钮
+    private Button takePhoto;//拍照按钮
+    private ImageView priviewPhoto;//预览拍照的缩略图
+    private Button rectPhoto;//区域拍照按钮
+    private RectImageView rectImageView;//区域拍照视图，自定义ImageView
+    private Fragment settingFragment;//设置页面的碎片
+    private FrameLayout camera_menu;//用来显示相机设置的视图
+    float previewRate = -1f;//预览视图的旋转角度
+    private boolean isRectPhoto=false;//是否是区域拍照
+    private RelativeLayout preview;//用来显示相机预览的视图
+    private int mpreview_width;//预览视图的宽
+    private int mpreview_height;//预览视图的高
+    public static ServerSocket serverSocket = null;//A端建立的ServerSocket
+    public Socket socket=null;//A端负责接收和分发信息的Socket
 
     /**
      * 接收到B的消息后，A这边进行的handler操作
@@ -135,8 +130,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
 
         initView();
         initCamera();
-        initViewParams();
-        setListener();
+
         try{
             serverSocket = new ServerSocket(Constant.DEFAULT_PORT);
         }catch (IOException e){
@@ -187,17 +181,14 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     OutputStream output = socket.getOutputStream();
                     DataOutputStream dos=new DataOutputStream(output);
                     FileInputStream fis = new FileInputStream(fileName);
-                    int size=fis.available();
+                    int size=fis.available();//获取文件的长度
                     byte[] data = new byte[size];
                     fis.read(data);
 
-                    //DebugUtil.debug("图片大小为"+size+"\n图片byte数组为："+ StringUtils.byteArrayToStr(data));
+                    dos.writeInt(size);//将长度单独写入
+                    dos.writeShort(Constant.RESPONSE_TOKEPHOTO);//将标志位单独写入
+                    dos.write(data);//将图片信息以byte数组的形式写入
 
-                    dos.writeInt(size);
-                    dos.writeShort(Constant.RESPONSE_TOKEPHOTO);
-                    dos.write(data);
-
-                    //dos.close();
                     fis.close();
 
                 } catch (IOException e) {
@@ -215,8 +206,6 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     public void sendMessage(final int flag,final String message){
         new Thread() {
             public void run() {
-               /* Message msg = new Message();
-                msg.what = 0x11;*/
                 try {
                     DebugUtil.debug("发送消息："+"\n标志位："+flag+"\n消息"+message);
                     OutputStream output = socket.getOutputStream();
@@ -240,27 +229,17 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         rectImageView=findViewById(R.id.camera_rect);
         camera_menu=findViewById(R.id.camera_menu);
         preview = findViewById(R.id.camera_preview);
+
+        settings.setOnClickListener(this);
+        takePhoto.setOnClickListener(this);
+        priviewPhoto.setOnClickListener(this);
+        rectPhoto.setOnClickListener(this);
     }
 
-    public void initViewParams(){
-        //设置外部整体布局参数
-        ViewGroup.LayoutParams params=mPreview.getLayoutParams();
-        Point p= DisplayUtil.getScreenMetrics(this);
-        params.width=p.x;
-        params.height=p.y;
-        Log.i(TAG, "screen: w = " + p.x + " y = " + p.y);
-        previewRate = DisplayUtil.getScreenRate(this);
-        mPreview.setLayoutParams(params);
-
-    }
-
-    /**
-     * 设置点击事件
-     */
-    public void setListener(){
-        settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    @Override
+    public void onClick(View v){
+        switch (v.getId()){
+            case R.id.button_settings:
                 if(!isClickSetting){
                     isClickSetting=true;
                     settingFragment=new SettingsFragment();
@@ -271,14 +250,11 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                 }else{
                     isClickSetting=false;
                     getFragmentManager().beginTransaction().hide(settingFragment
-                                            ).commit();
+                    ).commit();
                     camera_menu.setVisibility(View.GONE);
                 }
-            }
-        });
-        takePhoto.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
+                break;
+            case R.id.button_tokephoto:
                 if(!isRectPhoto){
                     mPreview.takePicture(priviewPhoto);
                 }else{
@@ -287,18 +263,8 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     mPreview.takePicture(priviewPhoto, mpreview_width, mpreview_height,
                             rect_x,rect_y);
                 }
-            }
-        });
-        priviewPhoto.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                PicturesAll.launch("pictures");
-            }
-        });
-        rectPhoto.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-
+                break;
+            case R.id.button_rectphoto:
                 if(!isRectPhoto){
                     isRectPhoto=true;
                     makeARect(isRectPhoto);
@@ -306,8 +272,11 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     isRectPhoto=false;
                     makeARect(isRectPhoto);
                 }
-            }
-        });
+                break;
+            case R.id.photo_preview:
+                PicturesAll.launch("pictures");
+                break;
+        }
     }
 
     /**
@@ -343,7 +312,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     }
 
     /**
-     * 创建一个矩形，接收到B端消息后，A端创建一个矩形区域
+     * B端发送区域请求后，A端创建一个矩形区域
      */
     public void makeAreaTokePhoto(){
         if(mPreview!=null&&priviewPhoto!=null&&rectImageView!=null){
@@ -363,7 +332,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     }
 
     /**
-     * 获取A端相机参数，以json字符串的形式发送给B端
+     * B端发送参数设置请求后，获取A端相机参数，以json字符串的形式发送给B端
      */
     public void getParamsFromA(){
         int height=SettingsFragment.mCamera.getParameters().getPictureSize().height;
@@ -392,12 +361,19 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     }
 
     /**
-     * A段自己创建一个矩形
+     * A端自己创建一个矩形，位于屏幕正中心
      * @param isRectPhoto 是否已经是区域拍照
      */
     public void makeARect(boolean isRectPhoto){
+        int x1 = DensityUtil.getScreenWidth(InitApp.AppContext)/2-Constant.RECTWIDTH/2;
+        int y1 = (DensityUtil.getScreenHeight(InitApp.AppContext)
+                -DensityUtil.dip2px(InitApp.AppContext,Constant.CAME_SETTING_HEIGHT))/2
+                -Constant.RECTHEIGHT/2;
+        int x2 = x1 + Constant.RECTWIDTH;
+        int y2 = y1 + Constant.RECTHEIGHT;
         if(rectImageView != null){
-            Rect screenCenterRect = createCenterScreenRect(DST_CENTER_RECT_WIDTH, DST_CENTER_RECT_HEIGHT);
+            DebugUtil.debug("x1="+x1+" y1="+y1+" x2="+x2+" y2="+y2);
+            Rect screenCenterRect = new Rect(x1, y1, x2, y2);
             rectImageView.setCenterRect(screenCenterRect);
         }
         if(isRectPhoto){
@@ -405,31 +381,15 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         }else{
             rectImageView.setVisibility(View.GONE);
         }
-
     }
 
     /**
-     * 根据长宽来新建一个矩形
-     * @param w
-     * @param h
-     * @return
-     */
-    private Rect createCenterScreenRect(int w, int h){
-        int x1 = DensityUtil.getScreenWidth(InitApp.AppContext)/2-w/2;
-        int y1 = DensityUtil.getScreenHeight(InitApp.AppContext)/2-h/2;
-        int x2 = x1 + w;
-        int y2 = y1 + h;
-        return new Rect(x1, y1, x2, y2);
-    }
-
-    /**
-     * 初始化相机
+     * 初始化相机,设置相机参数
      */
     public void initCamera(){
         mPreview = new CameraPreview(this);
         SettingsFragment.passCamera(mPreview,mPreview.getCameraInstance(),this);
         PreferenceManager.setDefaultValues(this, R.xml.preferences_a, false);
-        //SettingsFragment.setDefault(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
 
         //获取相机预览分辨率，高度：宽度
@@ -437,7 +397,6 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         int width=SettingsFragment.mCamera.getParameters().getPreviewSize().width;
         mpreview_width=DensityUtil.getScreenWidth(this);
         mpreview_height=(int)((float)width/(float)height*mpreview_width);
-        DebugUtil.debug(" height="+height+" \nwidth="+width+" \nmpreview_width="+mpreview_width+" \nmpreview_height="+mpreview_height);
 
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -449,7 +408,6 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
 
         rectImageView.setMax_width(mpreview_width);
         rectImageView.setMax_height(mpreview_height);
-
     }
 
     /**

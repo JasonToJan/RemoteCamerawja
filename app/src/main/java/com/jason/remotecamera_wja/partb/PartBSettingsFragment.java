@@ -33,7 +33,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
     static UpdateListener listener;
 
     interface UpdateListener{
-        void updateSetting(int flag,String value);
+        void updateSetting(int flag, String value);
     }
 
     public void setUpdateListener(UpdateListener listener){
@@ -80,8 +80,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         ArrayList<String> arrayList=new ArrayList<>();
         arrayList.add("640x480");
         arrayList.add("1280x720");
-        arrayList.add("1920x1088");
-        arrayList.add("2560x1440");
+        arrayList.add("2560x1920");
         cameraSizeListToListPreference(arrayList, KEY_PREF_PIC_SIZE,value);
     }
 

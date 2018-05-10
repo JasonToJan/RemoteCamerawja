@@ -36,6 +36,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="A端拍照"
+            android:clickable="true"
             android:background="@drawable/btn_bg_selector"
             android:layout_centerHorizontal="true"
             android:textSize="24sp"
@@ -54,12 +55,29 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="A端相册"
+            android:clickable="true"
             android:background="@drawable/btn_bg_selector"
             android:layout_centerHorizontal="true"
             android:textSize="24sp"
-
             />
 
     </RelativeLayout>
+
+    <!--<RelativeLayout
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/parta_makeWifi_btn"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="创建热点"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_centerHorizontal="true"
+            android:textSize="24sp"
+            />
+
+    </RelativeLayout>-->
 
 </LinearLayout>

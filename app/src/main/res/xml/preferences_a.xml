@@ -3,10 +3,12 @@
     <ListPreference
         android:layout="@layout/custom_preference"
         android:key="preview_size"
+        android:defaultValue="640x480"
         android:title="相机预览分辨率" />
     <ListPreference
         android:layout="@layout/custom_preference"
         android:key="picture_size"
+        android:defaultValue="640x480"
         android:title="照片分辨率" />
     <ListPreference
         android:layout="@layout/custom_preference"
@@ -15,6 +17,7 @@
         android:title="闪光灯" />
     <ListPreference
         android:layout="@layout/custom_preference"
+        android:defaultValue="auto"
         android:key="focus_mode"
         android:title="对焦模式" />
     <ListPreference
@@ -24,19 +27,12 @@
         android:title="白平衡" />
     <ListPreference
         android:layout="@layout/custom_preference"
-        android:defaultValue="auto"
-        android:key="scene_mode"
-        android:title="场景" />
-    <ListPreference
-        android:layout="@layout/custom_preference"
         android:defaultValue="0"
         android:key="exposure_compensation"
         android:title="曝光补偿" />
     <ListPreference
         android:layout="@layout/custom_preference"
         android:defaultValue="100"
-        android:entries="@array/pref_jpegQuality"
-        android:entryValues="@array/pref_jpegQuality"
         android:key="jpeg_quality"
         android:title="照片品质" />
 </PreferenceScreen>

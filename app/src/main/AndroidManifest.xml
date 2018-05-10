@@ -2,17 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jason.remotecamera_wja">
 
+    <!--相机权限-->
     <uses-feature android:name="android.hardware.camera" />
-
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!--网络权限-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- 写sd卡的权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- 读sd卡权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--获取wifi权限-->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
 
     <application
         android:name=".InitApp"
@@ -33,12 +40,12 @@
         </activity>
         <activity android:name=".parta.PartAMain" />
         <activity android:name=".partb.PartBMain" />
-        <activity android:name=".camera.CameraActivity" />
-        <activity android:name=".socketTest.SocketA" />
-        <activity android:name=".socketTest.SocketB" />
-        <activity android:name=".parta.pictures.PicturesAll" />
-        <activity android:name=".parta.pictures.PicturesDetail"/>
-        <activity android:name=".partb.ControllActivity"></activity>
+        <activity android:name=".parta.camera.CameraActivity" />
+        <activity android:name=".test.SocketA" />
+        <activity android:name=".test.SocketB" />
+        <activity android:name=".pictures.PicturesAll" />
+        <activity android:name=".pictures.PicturesDetail"/>
+        <activity android:name=".partb.ControllActivity"/>
     </application>
 
 </manifest>

@@ -3,12 +3,14 @@ package com.jason.remotecamera_wja.util;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.DhcpInfo;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 
 import com.jason.remotecamera_wja.InitApp;
+import com.jason.remotecamera_wja.test.WifiManagerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -267,4 +269,17 @@ public class NetworkUtil {
         return ((ipAddress & 0xff)+"."+(ipAddress>>8 & 0xff)+"."
                 +(ipAddress>>16 & 0xff)+"."+(ipAddress>>24 & 0xff));
     }
+
+    public static String getServerIP(){
+        DhcpInfo dhcp = new WifiManagerUtil(InitApp.AppContext).getDhcpInfo();
+        int ipInt = dhcp.gateway;
+        String serverip = String.valueOf(new StringBuilder()
+                .append((ipInt & 0xff)).append('.').append((ipInt >> 8) & 0xff)
+                .append('.').append((ipInt >> 16) & 0xff).append('.')
+                .append(((ipInt >> 24) & 0xff)).toString()
+
+        );
+        return serverip;
+    }
+
 }
