@@ -9,6 +9,9 @@ import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+/**
+ * URI 文件路径工具类
+ */
 public class UriUtil {
 
     public static String getRealPathFromURI(Context context, Uri contentURI) {

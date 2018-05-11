@@ -8,6 +8,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+/**
+ * B端发送消息给A端的线程，一个flag指令，一个是消息内容
+ */
 public class SendThread extends Thread{
 
     private Socket socket;

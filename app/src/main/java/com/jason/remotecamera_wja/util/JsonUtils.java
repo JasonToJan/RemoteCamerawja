@@ -7,6 +7,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Json工具类
+ */
 public class JsonUtils {
 
     public static boolean isPrintException = true;

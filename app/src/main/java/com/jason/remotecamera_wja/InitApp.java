@@ -5,6 +5,9 @@ import android.content.Context;
 
 import com.jason.remotecamera_wja.util.CrashHandlerUtil;
 
+/**
+ * 全局入口
+ */
 public class InitApp extends Application {
 
     public static Context AppContext;

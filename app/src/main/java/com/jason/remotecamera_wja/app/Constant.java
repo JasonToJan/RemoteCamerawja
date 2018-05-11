@@ -24,6 +24,8 @@ public class Constant {
     //区域拍照设定的长宽
     public final static int RECTWIDTH=600;
     public final static int RECTHEIGHT=600;
+    public final static int RECTWIDTHFORB=500;
+    public final static int RECTHEIGHTFORB=500;
 
     //A端创建wifi的名称和密码
     public final static String WIFISSID="RemoteCamerawja";
@@ -35,7 +37,7 @@ public class Constant {
     public final static String ServiceAddress3= "0.0.0.0";
     public final static String ServiceAddress4= "192.168.43.70";
     public final static String ServiceAddress= "192.168.1.182";
-    public final static int DEFAULT_PORT=10003;
+    public final static int DEFAULT_PORT=10004;
 
     //B端发送的指令Key
     public final static String TOKEPHOTO="101";
@@ -49,6 +51,7 @@ public class Constant {
     public final static String GETPARAMSFROMA="301";
 
     //B端发送的标志位
+    public final static int STATE_FROM_SERVER_ERROR=10;
     public final static int TOKEPHONTFLAG=11;
     public final static int AREAFLAG=12;
     public final static int PARAMSFLAG=13;
@@ -58,10 +61,13 @@ public class Constant {
     public final static int WHITEFALG=17;
     public final static int EXPOSFALG=18;
     public final static int JPEGFALG=19;
+    public final static int FOUCSFALG=20;//对焦，传送坐标点，按照比例缩放
+    public final static int AREAPOINTFALG=21;//区域拍照，传送坐标点，按照比例缩放
 
     //A端回复B端的指令
     public final static int RESPONSE_TOKEPHOTO=101;
     public final static int AREA_TOKEPHOTO_SUCCESS=200;
+    public final static int AREA_DELETE_SUCCESS=211;
     public final static int RESPONSE_PARAMS=201;
     public final static int RESPONSE_PICTURE=202;
     public final static int RESPONSE_FLASH=203;
@@ -69,5 +75,7 @@ public class Constant {
     public final static int RESPONSE_WHITE=205;
     public final static int RESPONSE_EXPOS=206;
     public final static int RESPONSE_JPEG=207;
-    
+
+    //A端其他指令
+    public final static int A_ERROR=404;
 }

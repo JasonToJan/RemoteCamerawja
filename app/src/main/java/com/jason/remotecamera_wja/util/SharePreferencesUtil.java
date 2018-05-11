@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
  * Created by jasonjan on 2018/5/6.
  */
 
+/**
+ * 本地文件存储类
+ */
 public class SharePreferencesUtil {
     /**
      * 保存在手机里面的文件名

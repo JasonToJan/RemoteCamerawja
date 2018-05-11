@@ -10,10 +10,11 @@ import android.graphics.drawable.Drawable;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.jason.remotecamera_wja.R;
-
 import java.util.List;
 
+/**
+ * 应用程序工具类
+ */
 public class AppUtil {
     /**
      * 获取当前应用程序的包名

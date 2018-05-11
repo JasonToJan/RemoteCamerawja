@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +37,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A端相机主页面，实现了设置页面的一个监听器，当设置了某一个属性后，在相机主页面做相应的改变
@@ -112,7 +116,22 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     ToastUtil.showToast(InitApp.AppContext,"正在设置照片品质！");
                     setJpegMode(message);
                     break;
-
+                case Constant.FOUCSFALG:
+                    String[] split = message.split("x");
+                    ToastUtil.showToast(InitApp.AppContext,"接收到对焦请求！"
+                            +"\n相对坐标为："+split[0]+" "+split[1]);
+                    makeFocus(Float.parseFloat(split[0]),Float.parseFloat(split[1]));
+                    break;
+                case Constant.AREAPOINTFALG:
+                    String[] split1 = message.split("x");
+                    ToastUtil.showToast(InitApp.AppContext,"接收到区域移动信号！"
+                            +"\n相对坐标为："+split1[0]+" "+split1[1]);
+                    makeAChangeRect(Float.parseFloat(split1[0]),Float.parseFloat(split1[1]));
+                    break;
+                case Constant.A_ERROR:
+                    ToastUtil.showToast(InitApp.AppContext,message);
+                    finish();
+                    break;
             }
 
         }
@@ -319,13 +338,28 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
             if(!isRectPhoto){
                 isRectPhoto=true;
                 makeARect(isRectPhoto);
-                //发送设置成功事件
-                sendMessage(Constant.AREA_TOKEPHOTO_SUCCESS,"已设置区域拍照！");
+                int point_x=rectImageView.getmFristPointX();
+                int point_y=rectImageView.getmFristPointY()-rectImageView.getMin_height();
+                //获取相机预览分辨率，高度：宽度
+                int height=SettingsFragment.mCamera.getParameters().getPreviewSize().height;
+                int width=SettingsFragment.mCamera.getParameters().getPreviewSize().width;
+                mpreview_width=DensityUtil.getScreenWidth(this);
+                mpreview_height=(int)((float)width/(float)height*mpreview_width);
+                //发送当前区域拍照的相对坐标点
+                float ratio_x=point_x/(float)mpreview_width;
+                float ratio_y=point_y/(float)mpreview_height;
+                float ratio2_x=(point_x+Constant.RECTWIDTH)/(float)mpreview_width;
+                float ratio2_y=(point_y+Constant.RECTHEIGHT)/(float)mpreview_height;
+                DebugUtil.debug("B端发送区域请求后，A端发送相对坐标点给B端"
+                        +"\npoint_x="+point_x+ " point_y="+point_y
+                        +" mpreview_width="+mpreview_width+" mpreview_height="+mpreview_height
+                        +" ratio2_x="+ratio2_x+" ratio2_y="+ratio2_y);
+                sendMessage(Constant.AREA_TOKEPHOTO_SUCCESS,ratio_x+"x"+ratio_y+"x"+ratio2_x+"x"+ratio2_y);
             }else{
                 isRectPhoto=false;
                 makeARect(isRectPhoto);
                 //发送设置成功事件
-                sendMessage(Constant.AREA_TOKEPHOTO_SUCCESS,"已取消区域拍照！");
+                sendMessage(Constant.AREA_DELETE_SUCCESS,"已取消区域拍照！");
             }
 
         }
@@ -508,8 +542,117 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
-
     }
+
+    /**
+     * 当B端选择触摸对焦后，发送相对坐标给A端，A端接收到坐标进行对焦
+     * @param ratio_x 宽的比例
+     * @param ratio_y 高的比例
+     */
+    public void makeFocus(float ratio_x,float ratio_y){
+        int viewWidth=SettingsFragment.mCameraPreview.getWidth();
+        int viewHeight=SettingsFragment.mCameraPreview.getHeight();
+        DebugUtil.debug("宽："+viewWidth+" 高"+viewHeight);
+        Rect focusRect = calculateTapArea(ratio_x*viewWidth, ratio_y*viewHeight, 1f, viewWidth, viewHeight);
+
+        SettingsFragment.mCamera.cancelAutoFocus();
+        Camera.Parameters params = SettingsFragment.mCamera.getParameters();
+        if (params.getMaxNumFocusAreas() > 0) {
+            List<Camera.Area> focusAreas = new ArrayList<>();
+            focusAreas.add(new Camera.Area(focusRect, 800));
+            params.setFocusAreas(focusAreas);
+        } else {
+            DebugUtil.debug( "focus areas not supported");
+        }
+        final String currentFocusMode = params.getFocusMode();
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+        SettingsFragment.mCamera.setParameters(params);
+
+        SettingsFragment.mCamera.autoFocus(new Camera.AutoFocusCallback() {
+            @Override
+            public void onAutoFocus(boolean success, Camera camera) {
+                DebugUtil.debug("聚焦成功！");
+                Camera.Parameters params = camera.getParameters();
+                params.setFocusMode(currentFocusMode);
+                camera.setParameters(params);
+            }
+        });
+    }
+
+    /**
+     * 接受触摸点的坐标，返回转换后坐标介于【-1000，1000】的矩形区域
+     * @param x 触摸点的x坐标
+     * @param y 触摸到的y坐标
+     * @param coefficient 系数 1f
+     * @param width 预览视图的宽
+     * @param height 预览视图的高
+     * @return
+     */
+    private static Rect calculateTapArea(float x, float y, float coefficient, int width, int height) {
+        DebugUtil.debug("CameraActivity中 传入的x="+x+" \n传入的y="+y
+                +"\n传入的width="+width+"\n传入的height="+height);
+        float focusAreaSize = 300;
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();
+        int centerX = (int) (x / width * 2000 - 1000);
+        int centerY = (int) (y / height * 2000 - 1000);
+
+        int halfAreaSize = areaSize / 2;
+        RectF rectF = new RectF(clamp(centerX - halfAreaSize, -1000, 1000)
+                , clamp(centerY - halfAreaSize, -1000, 1000)
+                , clamp(centerX + halfAreaSize, -1000, 1000)
+                , clamp(centerY + halfAreaSize, -1000, 1000));
+        DebugUtil.debug("矩形的坐标："+Math.round(rectF.left)+" "+Math.round(rectF.top)
+                +" "+Math.round(rectF.right)+" "+Math.round(rectF.bottom));
+        return new Rect(Math.round(rectF.left), Math.round(rectF.top)
+                , Math.round(rectF.right), Math.round(rectF.bottom));
+    }
+
+    /**
+     * 重定向x的值，规定了最大值和最小值
+     * @param x
+     * @param min
+     * @param max
+     * @return
+     */
+    private static int clamp(int x, int min, int max) {
+        if (x > max) {
+            return max;
+        }
+        if (x < min) {
+            return min;
+        }
+        return x;
+    }
+
+    /**
+     * 当B端发送区域改变的信号给A端后，A端区域拍照发生相应的改变
+     * @param ratio_x
+     * @param ratio_y
+     */
+    public void makeAChangeRect(float ratio_x,float ratio_y){
+        int max_width=SettingsFragment.mCameraPreview.getWidth();
+        int max_height=SettingsFragment.mCameraPreview.getHeight();
+        int min_height=(DensityUtil.getScreenHeight(this)
+                -DensityUtil.dip2px(this,Constant.CAME_SETTING_HEIGHT))/2
+                -max_height/2;
+        int x1=(int)(max_width*ratio_x);
+        int y1=(int)(max_height*ratio_y)+min_height;
+        int x2 = x1 + Constant.RECTWIDTH;
+        int y2 = y1 + Constant.RECTHEIGHT;
+        rectImageView.setMax_width(max_width);
+        rectImageView.setMax_height(max_height);
+        if(rectImageView != null){
+            DebugUtil.debug("最低高度为："+min_height+" x1="+x1+" y1="+y1+" x2="+x2+" y2="+y2);
+            Rect screenCenterRect = new Rect(x1, y1, x2, y2);
+            rectImageView.setCenterRect(screenCenterRect);
+        }
+        if(isRectPhoto){
+            rectImageView.setVisibility(View.VISIBLE);
+        }else{
+            rectImageView.setVisibility(View.GONE);
+        }
+    }
+
 
     @Override
     public void onResume(){

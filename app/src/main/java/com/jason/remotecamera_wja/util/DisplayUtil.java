@@ -6,6 +6,9 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
 
+/**
+ * 屏幕显示工具类
+ */
 public class DisplayUtil {
 
 	private static final String TAG = "DisplayUtil";

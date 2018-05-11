@@ -16,6 +16,9 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * 全局异常处理
+ */
 public class CrashHandlerUtil implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "异常处理";
     private static final boolean DEBUG = true;

@@ -19,6 +19,9 @@ import java.util.List;
  * Created by jasonjan on 2018/5/6.
  */
 
+/**
+ * 网络处理工具类
+ */
 public class NetworkUtil {
 
     private NetworkUtil() {

@@ -11,6 +11,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ * 文件工具类
+ */
 public class FileUtil {
 
 	private static final String TAG = "FileUtil";

@@ -17,7 +17,9 @@ import com.jason.remotecamera_wja.util.SharePreferencesUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * B端进行A端参数设置的片段
+ */
 public class PartBSettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String KEY_PREF_PIC_SIZE = "picture_size";
@@ -27,38 +29,35 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
     public static final String KEY_PREF_EXPOS_COMP = "exposure_compensation";
     public static final String KEY_PREF_JPEG_QUALITY = "jpeg_quality";
     public static PreferenceScreen preferenceScreen;
-    /*static Camera mCamera;
-    static Camera.Parameters mParameters;
-    static CameraPreview mCameraPreview;*/
-    static UpdateListener listener;
+
+    static UpdateListener listener;//更新了参数设置的监听器，用来B端发送指令给
 
     interface UpdateListener{
         void updateSetting(int flag, String value);
     }
 
-    public void setUpdateListener(UpdateListener listener){
-        this.listener=listener;
-    }
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences_b);
-        //getActivity().setTheme(R.style.PreferenceTheme);
 
         preferenceScreen=getPreferenceScreen();
-
         initSummary(getPreferenceScreen());
         init();
     }
 
+    /**
+     * B端主页面传递一个监听器给设置页面
+     * 设置页面可以通过这个监听器发送更新消息给B端主页面
+     * @param mylistener
+     */
     public static void passCamera(UpdateListener mylistener) {
-       /* mCamera = camera;
-        mParameters = camera.getParameters();
 
-        mCameraPreview = cameraPreview;*/
         listener=mylistener;
     }
 
+    /**
+     * 初始化，加载的数据是自己存放在SharePreferences文件中的
+     */
     public static void init() {
         String value1=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_PREF_PIC_SIZE, "640x480");
         String value2=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_PREF_FLASH_MODE, "auto");
@@ -81,7 +80,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         arrayList.add("640x480");
         arrayList.add("1280x720");
         arrayList.add("2560x1920");
-        cameraSizeListToListPreference(arrayList, KEY_PREF_PIC_SIZE,value);
+        stringListToListPreference(arrayList, KEY_PREF_PIC_SIZE,value);
     }
 
     private static void loadSupportedFlashMode(String value) {
@@ -131,14 +130,12 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         stringListToListPreference(arrayList, KEY_PREF_WHITE_BALANCE,value);
     }
 
-    private static void cameraSizeListToListPreference(ArrayList<String> list, String key,String value) {
-        List<String> stringList = new ArrayList<>();
-        for (String str : list) {
-            stringList.add(str);
-        }
-        stringListToListPreference(stringList, key,value);
-    }
-
+    /**
+     * 字符串数组，设置默认值
+     * @param list
+     * @param key
+     * @param value
+     */
     private  static void stringListToListPreference(List<String> list, String key,String value) {
         final CharSequence[] charSeq = list.toArray(new CharSequence[list.size()]);
         if(preferenceScreen!=null){
@@ -150,6 +147,11 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         }
     }
 
+    /**
+     * 当用户改变了设置中的某一项则会调用该函数
+     * @param sharedPreferences
+     * @param key
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
@@ -180,7 +182,6 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
     private static void setPictureSize(String value) {
         String[] split = value.split("x");
         DebugUtil.debug("我选择的长="+Integer.parseInt(split[0])+"\n宽="+Integer.parseInt(split[1]));
-        //mParameters.setPictureSize(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
         listener.updateSetting(Constant.PICTUREFLAG,value);
     }
 
@@ -210,6 +211,10 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         listener.updateSetting(Constant.JPEGFALG,value);
     }
 
+    /**
+     * 加载设置的可选项
+     * @param pref
+     */
     private static void initSummary(Preference pref) {
         if (pref instanceof PreferenceGroup) {
             PreferenceGroup prefGroup = (PreferenceGroup) pref;

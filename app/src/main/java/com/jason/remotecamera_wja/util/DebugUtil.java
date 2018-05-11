@@ -4,7 +4,11 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-//在代码中要打印log,就直接DebugUtil.debug(....).然后如果发布的时候,就直接把这个类的DEBUG 改成false,这样所有的log就不会再打印在控制台.
+/**
+ * 在代码中要打印log,就直接DebugUtil.debug(....).然后如果发布的时候,
+ * 就直接把这个类的DEBUG 改成false,
+ * 这样所有的log就不会再打印在控制台.
+ */
 public class DebugUtil {
     public static final String TAG = "调试中：";
     public static final boolean DEBUG = true;

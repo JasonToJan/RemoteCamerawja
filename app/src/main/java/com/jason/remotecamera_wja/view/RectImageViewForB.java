@@ -8,39 +8,41 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import com.jason.remotecamera_wja.InitApp;
 import com.jason.remotecamera_wja.app.Constant;
+import com.jason.remotecamera_wja.partb.SendThread;
 import com.jason.remotecamera_wja.util.DebugUtil;
 import com.jason.remotecamera_wja.util.DensityUtil;
 import com.jason.remotecamera_wja.util.DisplayUtil;
 
+import java.net.Socket;
+
 /**
  * 自定义区域拍照的视图
  */
-public class RectImageView extends AppCompatImageView{
+public class RectImageViewForB extends AppCompatImageView {
 
     private static final String TAG = "RectImageView";
-    public static final int RECTRADIU=600;//区域视图的宽高
+    public static final int RECTRADIU=Constant.RECTHEIGHTFORB;//区域视图的宽高
     private Paint mLinePaint;//视图边框画笔
     private Paint mAreaPaint;//视图外部画笔
-    private Rect mCenterRect = null;//中心矩形
     private Context mContext;//上下文
     int widthScreen, heightScreen;//屏幕的宽高
     private int mFristPointX , mFristPointY ;//左上角的坐标
     private int mSecondPointX , mSecondPointY ;//右下角的坐标
     private boolean isFirstDown = true;//是否第一次触摸
     private int mOldX = 0, mOldY = 0;//保存第一次触摸的坐标点
-    private int max_width=DensityUtil.getScreenWidth(InitApp.AppContext);//最大的宽度
-    private int max_height=DensityUtil.getScreenHeight(InitApp.AppContext)
-            -Constant.DEFAULT_HEIGHT;//最大的高度
+    private int max_width= DensityUtil.getScreenWidth(InitApp.AppContext)
+            -2*DensityUtil.dip2px(InitApp.AppContext,16);//最大的宽度
+    private int max_height=DensityUtil.getScreenHeight(InitApp.AppContext)-700;//最大的高度
     private int min_width=0;//最小的宽度
-    private int min_height=DensityUtil.getStatusBarHeight(InitApp.AppContext);//最小的高度
+    private int min_height=0;//最小的高度
+    public Socket socket;//传进来一个socket，当改变了区域矩形的位置就发送一个事件给A端
 
-    public RectImageView(Context context, AttributeSet attrs) {
+    public RectImageViewForB(Context context, AttributeSet attrs) {
         super(context, attrs);
         initPaint();
         mContext = context;
@@ -48,10 +50,18 @@ public class RectImageView extends AppCompatImageView{
         widthScreen = p.x;
         heightScreen = p.y;
         //在拍照区域的正中心画一个矩形
-        mFristPointX= DensityUtil.getScreenWidth(mContext)/2-RECTRADIU/2;
+        mFristPointX= DensityUtil.getScreenWidth(InitApp.AppContext)/2
+                - DensityUtil.dip2px(InitApp.AppContext,16)
+                -RECTRADIU/2;
         mSecondPointX=mFristPointX+RECTRADIU;
-        mFristPointY=DensityUtil.getScreenHeight(mContext)/2-RECTRADIU/2;
+        mFristPointY=400;
         mSecondPointY=mFristPointY+RECTRADIU;
+        DebugUtil.debug("坐标："+getmFristPointX()+" "+getmFristPointY());
+
+    }
+
+    public void setSocket(Socket socket){
+        this.socket=socket;
     }
 
     /**
@@ -60,18 +70,6 @@ public class RectImageView extends AppCompatImageView{
      */
     public void setMax_width(int max_width){
         this.max_width= max_width;
-    }
-
-    /**
-     * 返回最大宽度
-     * @return
-     */
-    public int getMax_width(){
-       return max_width;
-    }
-
-    public int getMin_height(){
-        return min_height;
     }
 
     /**
@@ -87,14 +85,14 @@ public class RectImageView extends AppCompatImageView{
      * 初始化画笔
      */
     private void initPaint(){
-        //绘制中间透明区域矩形边界的Paint  
+        //绘制中间透明区域矩形边界的Paint
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setColor(Color.BLUE);
         mLinePaint.setStyle(Paint.Style.STROKE);
         mLinePaint.setStrokeWidth(10f);
         mLinePaint.setAlpha(60);
 
-        //绘制四周阴影区域  
+        //绘制四周阴影区域
         mAreaPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mAreaPaint.setColor(Color.GRAY);
         mAreaPaint.setStyle(Paint.Style.FILL);
@@ -107,27 +105,17 @@ public class RectImageView extends AppCompatImageView{
      * @param r
      */
     public void setCenterRect(Rect r){
-        Log.i(TAG, "setCenterRect...");
         DebugUtil.debug("setCenterRect..."+r.left+" "+r.top);
         setmFristPointX(r.left);
         setmFristPointY(r.top);
-        setmSecondPointX(getmFristPointX() + RECTRADIU);
-        setmSecondPointY(getmFristPointY() + RECTRADIU);
+        setmSecondPointX(r.right);
+        setmSecondPointY(r.bottom);
         postInvalidate();
-    }
-
-    /**
-     * 清除中心矩形
-     * @param r
-     */
-    public void clearCenterRect(Rect r){
-        this.mCenterRect = null;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.i(TAG, "onDraw...");
         canvas.drawRect(new Rect(getmFristPointX(), getmFristPointY(), getmSecondPointX(), getmSecondPointY()), mLinePaint);
     }
 
@@ -207,8 +195,19 @@ public class RectImageView extends AppCompatImageView{
     public void ReSetVaue(int xDis, int yDis) {
         setmFristPointX(getmFristPointX() + xDis);
         setmFristPointY(getmFristPointY() + yDis);
-        setmSecondPointX(getmFristPointX() + RECTRADIU);
-        setmSecondPointY(getmFristPointY() + RECTRADIU);
+        setmSecondPointX(getmSecondPointX()+xDis);
+        setmSecondPointY(getmSecondPointY()+yDis);
+
+        int first_x=getmFristPointX();
+        int first_y=getmFristPointY();
+
+        //发送改变的区域坐标的比例给A端
+        float ratio_x=first_x/(float)max_width;
+        float ratio_y=first_y/(float)max_height;
+
+        if(socket!=null){
+            new SendThread(socket,Constant.AREAPOINTFALG,ratio_x+"x"+ratio_y).start();
+        }
         invalidate();
     }
 

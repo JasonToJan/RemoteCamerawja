@@ -16,7 +16,9 @@ import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
-
+/**
+ * 自定义可二指缩放的视图
+ */
 public class ZoomImageView extends AppCompatImageView implements OnGlobalLayoutListener, OnScaleGestureListener, OnTouchListener {
     private boolean mOnce;
     //初始化时所发的比例

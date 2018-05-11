@@ -21,12 +21,15 @@ import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.AppUtil;
 import com.jason.remotecamera_wja.util.PerfectClickListener;
 
+/**
+ * B端首页，可以选择控制A端或者进入B端的相册
+ */
 public class PartBMain extends AppCompatActivity{
 
     private static final String TAG = "PartBMain";
-    private Button partb_controll_btn;
-    private Button partb_picture_btn;
-    private AlertDialog mPermissionDialog;
+    private Button partb_controll_btn;//B端请求控制A端按钮
+    private Button partb_picture_btn;//B端相册按钮
+    private AlertDialog mPermissionDialog;//B端权限对话框
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, PartBMain.class)
@@ -74,6 +77,10 @@ public class PartBMain extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * 检查权限，两个按钮检查不一样的权限，故用了flag来标识
+     * @param flag
+     */
     public void checkPermission(int flag){
         switch (flag){
             case 1:
@@ -100,6 +107,12 @@ public class PartBMain extends AppCompatActivity{
         }
     }
 
+    /**
+     * 请求权限后的回调，根据用户选择进行相应的操作
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

@@ -5,7 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
-import com.jason.remotecamera_wja.util.StringUtil;
+import com.jason.remotecamera_wja.app.Constant;
+import com.jason.remotecamera_wja.util.StringUtils;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -47,6 +48,20 @@ public class ServerThread implements Runnable{
             }
 
         } catch (IOException e) {
+            Message msg = new Message();
+            Bundle bundle=new Bundle();
+            msg.what = Constant.A_ERROR;
+            bundle.putString("msg", "B端已退出！");
+            msg.setData(bundle);
+            handler.sendMessage(msg);//显示在界面上
+            e.printStackTrace();
+        }catch (Exception e){
+            Message msg = new Message();
+            Bundle bundle=new Bundle();
+            msg.what = Constant.A_ERROR;
+            bundle.putString("msg", "B端已退出！");
+            msg.setData(bundle);
+            handler.sendMessage(msg);//显示在界面上
             e.printStackTrace();
         }
         finally{
@@ -54,6 +69,12 @@ public class ServerThread implements Runnable{
                 in.close();
                 out.close();
             } catch (IOException e) {
+                Message msg = new Message();
+                Bundle bundle=new Bundle();
+                msg.what = Constant.A_ERROR;
+                bundle.putString("msg", "B端已退出！");
+                msg.setData(bundle);
+                handler.sendMessage(msg);//显示在界面上
                 e.printStackTrace();
             }
         }
@@ -95,7 +116,7 @@ public class ServerThread implements Runnable{
             while(len<size){
                 len+=dis.read(data,len,size-len);
             }
-            message= StringUtil.byteArrayToStr(data);
+            message= StringUtils.byteArrayToStr(data);
 
         } catch (IOException e) {
             e.printStackTrace();

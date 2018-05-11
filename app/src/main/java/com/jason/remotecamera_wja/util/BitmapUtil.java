@@ -18,6 +18,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * 图片处理工具类
+ */
 public final class BitmapUtil {
 
 

@@ -7,6 +7,9 @@ import android.widget.Toast;
  * Created by jasonjan on 2018/5/6.
  */
 
+/**
+ * 提示语句工具类
+ */
 public class ToastUtil {
 
     private static Toast mShortToast;

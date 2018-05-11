@@ -12,6 +12,9 @@ import java.io.UnsupportedEncodingException;
  * Created by jasonjan on 2018/5/6.
  */
 
+/**
+ * 字符串处理工具类
+ */
 public class StringUtils {
     public static String toUtf8(String str) {
         String result = null;

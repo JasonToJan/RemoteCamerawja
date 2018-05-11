@@ -1,8 +1,13 @@
 package com.jason.remotecamera_wja.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
+import android.view.Window;
 
+/**
+ * 单位转换工具类
+ */
 public class DensityUtil {
 
     public static float RATIO = 0.95F;//缩放比例值
@@ -126,4 +131,10 @@ public class DensityUtil {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         return (displayMetrics.xdpi / 160.0f);
     }
+
+    public static int getTop(Context context){
+        int contentTop = ((Activity)context).getWindow().findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        return contentTop;
+    }
+
 }

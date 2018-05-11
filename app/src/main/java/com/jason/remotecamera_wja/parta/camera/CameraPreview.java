@@ -515,10 +515,9 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         if (mCamera == null) {
             try {
                 mCamera = Camera.open();
-                int rotation=getDisplayOrientation();
-                mCamera.setDisplayOrientation(rotation);
+
             } catch (Exception e) {
-                Log.d(TAG, "camera is not available");
+                Log.d(TAG,e.getMessage());
             }
         }
         return mCamera;

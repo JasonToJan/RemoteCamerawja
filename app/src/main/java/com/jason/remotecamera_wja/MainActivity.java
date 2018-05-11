@@ -8,6 +8,9 @@ import android.widget.Button;
 import com.jason.remotecamera_wja.parta.PartAMain;
 import com.jason.remotecamera_wja.partb.PartBMain;
 
+/**
+ * APP开始的主活动页面，这里可以选择进入A端或者B端
+ */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private Button Abtn;

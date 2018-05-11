@@ -70,7 +70,7 @@ public class WifiConnector {
         config.SSID = "\"" + SSID + "\"";
         // nopass
         if (Type == WifiCipherType.WIFICIPHER_NOPASS) {
-            config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            config.allowedKeyManagement.set(KeyMgmt.NONE);
         }
         // wep
         if (Type == WifiCipherType.WIFICIPHER_WEP) {
@@ -91,9 +91,9 @@ public class WifiConnector {
             config.preSharedKey = "\"" + Password + "\"";
             config.hiddenSSID = true;
             config.allowedAuthAlgorithms
-                    .set(WifiConfiguration.AuthAlgorithm.OPEN);
+                    .set(AuthAlgorithm.OPEN);
             config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-            config.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            config.allowedKeyManagement.set(KeyMgmt.WPA_PSK);
             config.allowedPairwiseCiphers
                     .set(WifiConfiguration.PairwiseCipher.TKIP);
             // 此处需要修改否则不能自动重联

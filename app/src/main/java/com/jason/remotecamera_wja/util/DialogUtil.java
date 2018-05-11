@@ -6,6 +6,9 @@ import android.widget.TextView;
 
 import com.jason.remotecamera_wja.R;
 
+/**
+ * 对话框工具类
+ */
 public class DialogUtil {
 
     /**

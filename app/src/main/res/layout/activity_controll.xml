@@ -40,19 +40,31 @@
     <RelativeLayout
         android:layout_marginTop="30dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="70dp">
 
         <Button
         android:id="@+id/controll_take_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:text="拍照"
         android:background="@drawable/btn_bg_selector"
         android:layout_alignParentLeft="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:textSize="16sp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:textSize="20sp"
         />
+
+        <Button
+            android:id="@+id/controll_focus_btn"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="对焦"
+            android:layout_marginLeft="16dp"
+            android:background="@drawable/btn_bg_selector"
+            android:layout_toRightOf="@+id/controll_take_btn"
+            android:layout_centerVertical="true"
+            android:textSize="20sp"
+            />
 
         <Button
             android:id="@+id/controll_area_btn"
@@ -60,10 +72,10 @@
             android:layout_height="wrap_content"
             android:text="区域拍照"
             android:background="@drawable/btn_bg_selector"
-            android:layout_centerInParent="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="16dp"
-            android:textSize="16sp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/controll_focus_btn"
+            android:textSize="20sp"
             />
 
         <Button
@@ -72,10 +84,10 @@
             android:layout_height="wrap_content"
             android:text="参数设置"
             android:background="@drawable/btn_bg_selector"
-            android:layout_alignParentRight="true"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="16dp"
-            android:textSize="16sp"
+            android:layout_toRightOf="@+id/controll_area_btn"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="16dp"
+            android:textSize="20sp"
             />
 
     </RelativeLayout>
@@ -85,6 +97,21 @@
         android:visibility="gone"
         android:layout_width="500dp"
         android:layout_height="1000dp" />
+
+    <TextView
+        android:id="@+id/camera_focus_tv"
+        android:visibility="gone"
+        android:layout_margin="16dp"
+        android:background="@drawable/btn_bg_selector"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.jason.remotecamera_wja.view.RectImageViewForB
+        android:id="@+id/camera_area_iv"
+        android:visibility="gone"
+        android:layout_margin="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <RelativeLayout
         android:layout_width="match_parent"

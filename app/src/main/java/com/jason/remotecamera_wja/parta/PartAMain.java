@@ -22,13 +22,15 @@ import com.jason.remotecamera_wja.parta.camera.CameraActivity;
 import com.jason.remotecamera_wja.pictures.PicturesAll;
 import com.jason.remotecamera_wja.util.AppUtil;
 
+/**
+ * A端主页面，可以选择拍照或者进入图库
+ */
 public class PartAMain extends AppCompatActivity implements View.OnClickListener{
 
     private static final String TAG = "PartAMain";
-    private Button parta_photo_btn;
-    private Button parta_picture_btn;
-    private Button parta_makeWifi_btn;
-    private AlertDialog mPermissionDialog;
+    private Button parta_photo_btn;//A端拍照按钮
+    private Button parta_picture_btn;//A端相册按钮
+    private AlertDialog mPermissionDialog;//权限提示框
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, PartAMain.class)
@@ -77,6 +79,10 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * 动态申请权限，通过一个标志位判断需要申请的权限
+     * @param flag
+     */
     public void checkPermission(int flag){
         switch (flag){
             case 1:
@@ -102,6 +108,12 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    /**
+     * 用户选择是否申请权限后的回调函数
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -140,7 +152,7 @@ public class PartAMain extends AppCompatActivity implements View.OnClickListener
     }
 
     /**
-     * 不再提示权限 时的展示对话框
+     * 不再提示权限时的展示对话框
      */
     private void showPermissionDialog() {
         if (mPermissionDialog == null) {
