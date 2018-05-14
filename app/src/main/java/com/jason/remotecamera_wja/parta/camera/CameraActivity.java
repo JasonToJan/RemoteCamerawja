@@ -116,6 +116,10 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                     ToastUtil.showToast(InitApp.AppContext,"正在设置照片品质！");
                     setJpegMode(message);
                     break;
+                case Constant.ISOFALG:
+                    ToastUtil.showToast(InitApp.AppContext,"正在设置感光度ISO！");
+                    setISO(message);
+                    break;
                 case Constant.FOUCSFALG:
                     String[] split = message.split("x");
                     ToastUtil.showToast(InitApp.AppContext,"接收到对焦请求！"
@@ -377,6 +381,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         String focus_mode=SettingsFragment.mCamera.getParameters().getFocusMode();
         String white_balance=SettingsFragment.mCamera.getParameters().getWhiteBalance();
         String exposure_compensation=String.valueOf(SettingsFragment.mCamera.getParameters().getExposureCompensation());
+        String iso=SettingsFragment.mCamera.getParameters().get("iso");
         String jpeg_quality=String.valueOf(SettingsFragment.mCamera.getParameters().getJpegQuality());
 
         JSONObject jsonObject=new JSONObject();
@@ -386,6 +391,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
             jsonObject.put("focus_mode",focus_mode);
             jsonObject.put("white_balance",white_balance);
             jsonObject.put("exposure_compensation",exposure_compensation);
+            jsonObject.put("iso",iso);
             jsonObject.put("jpeg_quality",jpeg_quality);
         }catch (JSONException e){
             e.printStackTrace();
@@ -425,6 +431,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
         SettingsFragment.passCamera(mPreview,mPreview.getCameraInstance(),this);
         PreferenceManager.setDefaultValues(this, R.xml.preferences_a, false);
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
+
 
         //获取相机预览分辨率，高度：宽度
         int height=SettingsFragment.mCamera.getParameters().getPreviewSize().height;
@@ -478,7 +485,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
      */
     public void setPictureSize(String value){
         SettingsFragment.setPictureSize(value);
-        sendMessage(Constant.RESPONSE_PICTURE,"已成功设置照片分辨率！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置照片分辨率为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -490,7 +497,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
      */
     public void setFlashMode(String value){
         SettingsFragment.setFlashMode(value);
-        sendMessage(Constant.RESPONSE_FLASH,"已成功设置闪光灯！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置闪光灯为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -502,7 +509,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
      */
     public void setFocusMode(String value){
         SettingsFragment.setFocusMode(value);
-        sendMessage(Constant.RESPONSE_FOCUS,"已成功设置对焦模式！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置对焦模式为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -514,7 +521,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
      */
     public void setWhiteMode(String value){
         SettingsFragment.setWhiteBalance(value);
-        sendMessage(Constant.RESPONSE_WHITE,"已成功设置白平衡！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置白平衡为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -526,7 +533,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
      */
     public void setExposMode(String value){
         SettingsFragment.setExposComp(value);
-        sendMessage(Constant.RESPONSE_EXPOS,"已成功设置曝光补偿！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置曝光补偿为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -534,11 +541,22 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
     }
 
     /**
+     * 设置感光度ISO
+     */
+    public void setISO(String value){
+        SettingsFragment.setExposComp(value);
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置感光度ISO为："+value);
+        SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
+        SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
+        SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    /**
      * 设置照片品质
      */
     public void setJpegMode(String value){
         SettingsFragment.setJpegQuality(value);
-        sendMessage(Constant.RESPONSE_JPEG,"已成功设置照片品质！");
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功设置照片品质为："+value);
         SettingsFragment.mCamera.setParameters(SettingsFragment.mParameters);
         SettingsFragment.setUpdate(PreferenceManager.getDefaultSharedPreferences(this));
         SettingsFragment.init(PreferenceManager.getDefaultSharedPreferences(this));
@@ -577,6 +595,7 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
                 camera.setParameters(params);
             }
         });
+        sendMessage(Constant.RESPONSE_MESSAGE,"已成功对焦");
     }
 
     /**
@@ -670,6 +689,10 @@ public class CameraActivity extends Activity implements SettingsFragment.Updatep
 
     @Override
     public void onDestroy() {
+        if(SettingsFragment.mCamera!=null){
+            SettingsFragment.mCamera.release();
+            SettingsFragment.mCamera = null;
+        }
         super.onDestroy();
         mPreview=null;
     }

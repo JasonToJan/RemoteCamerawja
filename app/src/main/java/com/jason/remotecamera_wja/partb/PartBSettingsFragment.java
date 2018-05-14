@@ -27,6 +27,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
     public static final String KEY_PREF_FOCUS_MODE = "focus_mode";
     public static final String KEY_PREF_WHITE_BALANCE = "white_balance";
     public static final String KEY_PREF_EXPOS_COMP = "exposure_compensation";
+    public static final String KEY_ISO = "iso";
     public static final String KEY_PREF_JPEG_QUALITY = "jpeg_quality";
     public static PreferenceScreen preferenceScreen;
 
@@ -65,6 +66,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         String value4=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_PREF_WHITE_BALANCE, "auto");
         String value5=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_PREF_EXPOS_COMP, "0");
         String value6=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_PREF_JPEG_QUALITY, "100");
+        String value7=(String)SharePreferencesUtil.getParam(InitApp.AppContext,KEY_ISO, "auto");
 
         loadSupportedPictureSize(value1);
         loadSupportedFlashMode(value2);
@@ -72,7 +74,7 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         loadSupportedWhiteBalance(value4);
         loadSupportedExposeCompensation(value5);
         loadSupportedJpegQuality(value6);
-
+        loadSupportedIso(value7);
     }
 
     private static void loadSupportedPictureSize(String value) {
@@ -130,6 +132,17 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
         stringListToListPreference(arrayList, KEY_PREF_WHITE_BALANCE,value);
     }
 
+    private static void loadSupportedIso(String value) {
+        ArrayList<String> arrayList=new ArrayList<>();
+        arrayList.add("auto");
+        arrayList.add("100");
+        arrayList.add("200");
+        arrayList.add("400");
+        arrayList.add("800");
+        arrayList.add("1600");
+        stringListToListPreference(arrayList, KEY_ISO,value);
+    }
+
     /**
      * 字符串数组，设置默认值
      * @param list
@@ -171,6 +184,9 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
             case KEY_PREF_EXPOS_COMP:
                 setExposComp(sharedPreferences.getString(key, ""));
                 break;
+            case KEY_ISO:
+                setIso(sharedPreferences.getString(key, ""));
+                break;
             case KEY_PREF_JPEG_QUALITY:
                 setJpegQuality(sharedPreferences.getString(key, ""));
                 break;
@@ -204,6 +220,11 @@ public class PartBSettingsFragment extends PreferenceFragment implements SharedP
     private static void setExposComp(String value) {
         DebugUtil.debug("我选择的曝光值："+value);
         listener.updateSetting(Constant.EXPOSFALG,value);
+    }
+
+    private static void setIso(String value) {
+        DebugUtil.debug("我选择的ISO："+value);
+        listener.updateSetting(Constant.ISOFALG,value);
     }
 
     private static void setJpegQuality(String value) {

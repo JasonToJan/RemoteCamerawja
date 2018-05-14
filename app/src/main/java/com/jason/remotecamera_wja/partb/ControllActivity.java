@@ -116,6 +116,13 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                     partb_status_tv.setText("取消区域拍照成功");
                     break;
                 }
+                case Constant.RESPONSE_MESSAGE:{
+                    Bundle bundle=msg.getData();
+                    String message=bundle.getString("msg");
+                    ToastUtil.showToast(InitApp.AppContext,message);
+                    partb_status_tv.setText("设置参数成功");
+                    break;
+                }
                 case Constant.RESPONSE_PARAMS:{
                     partb_status_tv.setText("正在设置参数");
                     Bundle bundle=msg.getData();
@@ -128,12 +135,14 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                     String focus_mode=JsonUtils.getString(message,"focus_mode","auto");
                     String white_balance=JsonUtils.getString(message,"white_balance","auto");
                     String exposure_compensation=JsonUtils.getString(message,"exposure_compensation","0");
+                    String iso=JsonUtils.getString(message,"iso","auto");
                     String jpeg_quality=JsonUtils.getString(message,"jpeg_quality","100");
                     SharePreferencesUtil.setParam(ControllActivity.this,"picture_size",picture_size);
                     SharePreferencesUtil.setParam(ControllActivity.this,"flash_mode",flash_mode);
                     SharePreferencesUtil.setParam(ControllActivity.this,"focus_mode",focus_mode);
                     SharePreferencesUtil.setParam(ControllActivity.this,"white_balance",white_balance);
                     SharePreferencesUtil.setParam(ControllActivity.this,"exposure_compensation",exposure_compensation);
+                    SharePreferencesUtil.setParam(ControllActivity.this,"iso",iso);
                     SharePreferencesUtil.setParam(ControllActivity.this,"jpeg_quality",jpeg_quality);
                     PartBSettingsFragment.init();
                     break;
@@ -143,6 +152,8 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
 
         };
     };
+
+
 
     public static void launch(String flag) {
         InitApp.AppContext.startActivity(new Intent(InitApp.AppContext, ControllActivity.class)
@@ -221,6 +232,15 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                                         bundle.putString("msg", StringUtils.byteArrayToStr(data));
                                         msg.setData(bundle);
                                         msg.what = Constant.RESPONSE_PARAMS;
+                                        handler.sendMessage(msg);
+                                        break;
+                                    }
+                                    case Constant.RESPONSE_MESSAGE:{
+                                        Message msg = Message.obtain();
+                                        Bundle bundle=new Bundle();
+                                        bundle.putString("msg", StringUtils.byteArrayToStr(data));
+                                        msg.setData(bundle);
+                                        msg.what = Constant.RESPONSE_MESSAGE;
                                         handler.sendMessage(msg);
                                         break;
                                     }
@@ -385,8 +405,8 @@ public class ControllActivity extends AppCompatActivity implements PartBSettings
                     //计算相对比例
                     float ratio_x=focus_x/focus_width;
                     float ratio_y=focus_y/focus_height;
-                    ToastUtil.showToast(ControllActivity.this,"宽的比例："
-                            +ratio_x+"\n高的比例"+ratio_y);
+                    ToastUtil.showToast(ControllActivity.this,"点击的相对坐标为：\n("
+                            +ratio_x+","+ratio_y+")");
                     //发送对焦的请求给A端
                     new SendThread(socket,Constant.FOUCSFALG,ratio_x+"x"+ratio_y).start();
                     break;

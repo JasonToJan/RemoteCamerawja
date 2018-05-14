@@ -278,9 +278,15 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
                     }
                     try {
                         FileOutputStream fos = new FileOutputStream(pictureFile);
-                        fos.write(datas);//存入裁剪后的图片
-                        fos.close();
+                        /*fos.write(datas);//存入裁剪后的图片
+                        fos.close();*/
                         DebugUtil.debug("拍摄的照片旋转角度为："+BitmapUtil.readPictureDegree(pictureFile.getPath()));
+                        Bitmap bitmap_rotate=BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
+                                BitmapUtil.readPictureDegree(pictureFile.getPath()));
+                        byte[] datas_rotate=BitmapUtil.bitmap2Bytes(bitmap_rotate);
+                        fos.write(datas_rotate);
+                        fos.close();
+
                         view.setImageBitmap(BitmapUtil.rotateBitmapByDegree(MediaStore.Images.Media.getBitmap(InitApp.AppContext.getContentResolver(),outputMediaFileUri),
                                 BitmapUtil.readPictureDegree(pictureFile.getPath())));
 
@@ -385,7 +391,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     /**
-     * 跳转预览视图的旋转角度
+     * 调整预览视图的旋转角度
      * @param rotation 旋转的度数
      */
     private void adjustDisplayRatio(int rotation) {
@@ -423,8 +429,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
      */
     public int getDisplayOrientation() {
 
-        Camera.CameraInfo camInfo =
-                new Camera.CameraInfo();
+        Camera.CameraInfo camInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, camInfo);
 
 

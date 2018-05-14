@@ -32,6 +32,11 @@
         android:title="曝光补偿" />
     <ListPreference
         android:layout="@layout/custom_preference"
+        android:defaultValue="auto"
+        android:key="iso"
+        android:title="感光度ISO" />
+    <ListPreference
+        android:layout="@layout/custom_preference"
         android:defaultValue="100"
         android:key="jpeg_quality"
         android:title="照片品质" />

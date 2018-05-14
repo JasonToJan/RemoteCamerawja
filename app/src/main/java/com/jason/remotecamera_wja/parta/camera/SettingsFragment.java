@@ -30,6 +30,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
     public static final String KEY_PREF_FOCUS_MODE = "focus_mode";
     public static final String KEY_PREF_WHITE_BALANCE = "white_balance";
     public static final String KEY_PREF_EXPOS_COMP = "exposure_compensation";
+    public static final String KEY_ISO = "iso";
     public static final String KEY_PREF_JPEG_QUALITY = "jpeg_quality";
     static Camera mCamera;
     static Camera.Parameters mParameters;
@@ -54,6 +55,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         loadSupportedFocusMode();
         loadSupportedWhiteBalance();
         loadSupportedExposeCompensation();
+        loadSupportedIso();
         loadSupportedJpegQuality();
         initSummary(getPreferenceScreen());
     }
@@ -85,6 +87,7 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         editor.putString(KEY_PREF_EXPOS_COMP, getDefaultExposure());
         editor.putString(KEY_PREF_JPEG_QUALITY, getDefaultJpegQuality());
         editor.putString(KEY_PREF_FOCUS_MODE, getDefaultFocusMode());
+        editor.putString(KEY_ISO,getDefaultIso());
         editor.apply();
 
     }
@@ -119,6 +122,11 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         return String.valueOf(jpegQuality);
     }
 
+    public static String getDefaultIso() {
+        String iso=mParameters.get("iso");
+        return iso==null?"auto":iso;
+    }
+
     public static String getDefaultFocusMode() {
         List<String> supportedFocusModes = mParameters.getSupportedFocusModes();
         if (supportedFocusModes.contains("continuous-picture")) {
@@ -138,12 +146,12 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         setFocusMode(sharedPref.getString(KEY_PREF_FOCUS_MODE, "auto"));
         setWhiteBalance(sharedPref.getString(KEY_PREF_WHITE_BALANCE, "auto"));
         setExposComp(sharedPref.getString(KEY_PREF_EXPOS_COMP, "0"));
+        setIso(sharedPref.getString(KEY_ISO,"auto"));
         setJpegQuality(sharedPref.getString(KEY_PREF_JPEG_QUALITY, "100"));
 
         mCamera.stopPreview();
         int rotation=getDisplayOrientation();
         mCamera.setDisplayOrientation(rotation);
-        //Camera.Parameters parameters = mCamera.getParameters();
         mParameters.setRotation(rotation);
         mCamera.setParameters(mParameters);
         mCamera.startPreview();
@@ -246,6 +254,17 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         stringListToListPreference(arrayList, KEY_PREF_JPEG_QUALITY);
     }
 
+    public void loadSupportedIso() {
+        ArrayList<String> arrayList=new ArrayList<>();
+        arrayList.add("auto");
+        arrayList.add("100");
+        arrayList.add("200");
+        arrayList.add("400");
+        arrayList.add("800");
+        arrayList.add("1600");
+        stringListToListPreference(arrayList, KEY_ISO);
+    }
+
     /**
      * 将字符串数组添加到文件中，只是设置了可选项，还未加载用户自己选的值
      * @param list
@@ -281,6 +300,9 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
                 break;
             case KEY_PREF_WHITE_BALANCE:
                 setWhiteBalance(sharedPreferences.getString(key, ""));
+                break;
+            case KEY_ISO:
+                setIso(sharedPreferences.getString(key, ""));
                 break;
             case KEY_PREF_EXPOS_COMP:
                 setExposComp(sharedPreferences.getString(key, ""));
@@ -320,6 +342,10 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
 
     public static void setExposComp(String value) {
         mParameters.setExposureCompensation(Integer.parseInt(value));
+    }
+
+    public static void setIso(String value) {
+        mParameters.set("iso",value);
     }
 
     public static void setJpegQuality(String value) {
